@@ -1,0 +1,57 @@
+{
+  "node": "14",
+  "card": "pre.nmap_tcp_probe",
+  "run": "walk-89",
+  "task": {
+    "node_id": "14",
+    "goal": "Direct Network Access",
+    "inputs": {
+      "port": "6379",
+      "protocol": "tcp",
+      "source_ref": "node:14",
+      "target_host": "192.168.52.10"
+    }
+  },
+  "scope": {
+    "host": "192.168.52.10",
+    "port": 6379,
+    "protocol": "tcp",
+    "resources": "whole_endpoint",
+    "vantage": "base"
+  },
+  "actions": [
+    {
+      "tool": "tool",
+      "name": "nmap",
+      "args": [
+        "--unprivileged",
+        "-Pn",
+        "-n",
+        "-sT",
+        "--reason",
+        "-p",
+        "6379",
+        "-oX",
+        "-",
+        "192.168.52.10"
+      ]
+    },
+    {
+      "kind": "finish",
+      "claim": "TCP port 6379 on 192.168.52.10 is open from the base vantage; nmap connect scan reports state=open with reason=syn-ack, service table match redis.",
+      "claimed_verdict": "pass",
+      "citations": [
+        {
+          "quote": "<port protocol=\"tcp\" portid=\"6379\"><state state=\"open\" reason=\"syn-ack\" reason_ttl=\"0\"/><service name=\"redis\" method=\"table\" conf=\"3\"/></port>"
+        },
+        {
+          "quote": "<scaninfo type=\"connect\" protocol=\"tcp\" numservices=\"1\" services=\"6379\"/>"
+        }
+      ],
+      "materials": []
+    }
+  ],
+  "receipts": [
+    "agv4452fdstart\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE nmaprun>\n<?xml-stylesheet href=\"file:///usr/bin/../share/nmap/nmap.xsl\" type=\"text/xsl\"?>\n<!-- Nmap 7.93 scan initiated Wed Oct  7 06:28:45 2026 as: nmap -&#45;unprivileged -Pn -n -sT -&#45;reason -p 6379 -oX - 192.168.52.10 -->\n<nmaprun scanner=\"nmap\" args=\"nmap -&#45;unprivileged -Pn -n -sT -&#45;reason -p 6379 -oX - 192.168.52.10\" start=\"1791368925\" startstr=\"Wed Oct  7 06:28:45 2026\" version=\"7.93\" xmloutputversion=\"1.05\">\n<scaninfo type=\"connect\" protocol=\"tcp\" numservices=\"1\" services=\"6379\"/>\n<verbose level=\"0\"/>\n<debugging level=\"0\"/>\n<host starttime=\"1791368925\" endtime=\"1791368925\"><status state=\"up\" reason=\"user-set\" reason_ttl=\"0\"/>\n<address addr=\"192.168.52.10\" addrtype=\"ipv4\"/>\n<hostnames>\n</hostnames>\n<ports><port protocol=\"tcp\" portid=\"6379\"><state state=\"open\" reason=\"syn-ack\" reason_ttl=\"0\"/><service name=\"redis\" method=\"table\" conf=\"3\"/></port>\n</ports>\n<times srtt=\"1157\" rttvar=\"5000\" to=\"100000\"/>\n</host>\n<runstats><finished time=\"1791368925\" timestr=\"Wed Oct  7 06:28:45 2026\" summary=\"Nmap done at Wed Oct  7 06:28:45 2026; 1 IP address (1 host up) scanned in 0.07 seconds\" elapsed=\"0.07\" exit=\"success\"/><hosts up=\"1\" down=\"0\" total=\"1\"/>\n</runstats>\n</nmaprun>\n\nagv4452fdend\n"
+  ]
+}

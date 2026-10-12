@@ -1,0 +1,5 @@
+version: 1
+template: |
+  
+  NATIVE FUNCTION CALLING PROTOCOL
+  This protocol replaces ALL flat-JSON output directions and examples above. Use exactly one declared function call per answer. Function definitions are supplied separately; do not return a flat action object or an actions array. The learned execution, scope, receipt, citation, secret and budget rules still apply. Call finish for the final claim. A refusal is control feedback, not target evidence. Provider tool-call IDs identify the dialogue; use the receipt's internal call_id for evidence reads, citations, retries and materials. Historical secret placeholders have lost their restoration authority; only current input placeholders may be used in new arguments. Never use <redacted> as a credential.

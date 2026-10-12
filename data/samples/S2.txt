@@ -1,0 +1,139 @@
+1,"execCode(citrixServer,admin)","OR",0
+2,"RULE 21 (Exploitation for Client Execution intranet - T1203)","AND",0
+3,"hacl(vpnServer,citrixServer,httpd,80)","LEAF",1
+2,3,-1
+4,"ttpExists(citrixServer,'CVE-2010-0490',ie,remoteClient,clientVulnerability,execution)","LEAF",1
+2,4,-1
+5,"networkServiceInfo(citrixServer,ie,httpd,80,admin)","LEAF",1
+2,5,-1
+6,"execCode(vpnServer,root)","OR",0
+7,"RULE 8 (Exploitation for Client Execution internet - T1203)","AND",0
+8,"attackVectorInjection(vpnServer,admin,httpd,80)","OR",0
+9,"RULE 0 (Insecure Operations Leading to Attack Vector Injection)","AND",0
+10,"hacl(internet,vpnServer,httpd,80)","LEAF",1
+9,10,-1
+11,"inCompetent(victim_3,vpnServer,admin)","LEAF",1
+9,11,-1
+12,"attackerLocated(internet)","LEAF",1
+9,12,-1
+8,9,-1
+7,8,-1
+13,"networkServiceInfo(vpnServer,ie,httpd,80,root)","LEAF",1
+7,13,-1
+14,"ttpExists(vpnServer,'CVE-2010-0492',ie,remoteClient,clientVulnerability,execution)","LEAF",1
+7,14,-1
+6,7,-1
+2,6,-1
+1,2,-1
+15,"RULE 8 (Exploitation for Client Execution internet - T1203)","AND",0
+16,"attackVectorInjection(citrixServer,admin,httpd,80)","OR",0
+17,"RULE 0 (Insecure Operations Leading to Attack Vector Injection)","AND",0
+18,"hacl(internet,citrixServer,httpd,80)","LEAF",1
+17,18,-1
+19,"inCompetent(victim_1,citrixServer,admin)","LEAF",1
+17,19,-1
+17,12,-1
+16,17,-1
+15,16,-1
+15,5,-1
+15,4,-1
+1,15,-1
+20,"execCode(commServer,admin)","OR",0
+21,"RULE 23 (Command and Scripting Interpreter - Visual Basic - T1059.005)","AND",0
+22,"ttpExists(commServer,'CVE-2010-0483',vbScript,remoteClient,abuseofVBScriptorVBA,execution)","LEAF",1
+21,22,-1
+23,"networkServiceInfo(commServer,vbScript,httpd,80,admin)","LEAF",1
+21,23,-1
+24,"attackVectorInjection(commServer,admin,httpd,80)","OR",0
+25,"RULE 0 (Insecure Operations Leading to Attack Vector Injection)","AND",0
+26,"hacl(internet,commServer,httpd,80)","LEAF",1
+25,26,-1
+27,"inCompetent(victim_2,commServer,admin)","LEAF",1
+25,27,-1
+25,12,-1
+24,25,-1
+21,24,-1
+20,21,-1
+28,"execCode(dataHistorian,root)","OR",0
+29,"RULE 24 (Browser Session Hijacking - T1185)","AND",0
+30,"hacl(commServer,dataHistorian,https,443)","LEAF",1
+29,30,-1
+31,"ttpExists(dataHistorian,'CVE-2010-0494',ie,remoteClient,browserSessionHijacking,collection)","LEAF",1
+29,31,-1
+32,"networkServiceInfo(dataHistorian,ie,https,443,root)","LEAF",1
+29,32,-1
+29,20,-1
+28,29,-1
+33,"execCode(fileServer,root)","OR",0
+34,"RULE 10 (Network Boundary Bridging Network Address Translation Traversal - T1599.001)","AND",0
+35,"hacl(webServer,fileServer,smb,445)","LEAF",1
+34,35,-1
+36,"networkServiceInfo(fileServer,isatap,smb,445,root)","LEAF",1
+34,36,-1
+37,"ttpExists(fileServer,'CVE-2010-0812',isatap,remoteClient,networkBoundaryBridging,defenseEvasion)","LEAF",1
+34,37,-1
+38,"execCode(webServer,root)","OR",0
+39,"RULE 11 (Masquerading - Match Legitimate Name or Location - T1036.005)","AND",0
+40,"netAccess(webServer,httpd,80)","OR",0
+41,"RULE 1 (Direct Network Access)","AND",0
+42,"hacl(internet,webServer,httpd,80)","LEAF",1
+41,42,-1
+41,12,-1
+40,41,-1
+39,40,-1
+43,"networkServiceInfo(webServer,iis,httpd,80,root)","LEAF",1
+39,43,-1
+44,"ttpExists(webServer,iis,remoteClient,disguisedLegitimateDocument,defenseEvasion)","LEAF",1
+39,44,-1
+39,42,-1
+38,39,-1
+34,38,-1
+33,34,-1
+45,"execCode(workStation,admin)","OR",0
+46,"RULE 18 (Hijack Execution Flow Path Interception - T1574.007)","AND",0
+47,"execCode(workStation,user)","OR",0
+48,"RULE 31 (Exploitation of Remote Services - T1210)","AND",0
+48,38,-1
+49,"hacl(webServer,workStation,tcp,873)","LEAF",1
+48,49,-1
+50,"networkServiceInfo(workStation,rsync,tcp,873,user)","LEAF",1
+48,50,-1
+51,"ttpExists(workStation,rsync,remoteClient,remoteServicesExploitation,lateralMovement)","LEAF",1
+48,51,-1
+47,48,-1
+46,47,-1
+52,"pathExists(workStation,'/ProgramFiles/Symantec/Backup_Exec/bengine.exe',write,admin)","LEAF",1
+46,52,-1
+53,"ttpExists(workStation,backupExecService,local,pathHijack,privilegeEscalation)","LEAF",1
+46,53,-1
+45,46,-1
+54,"RULE 25 (Remote Services - SMB Windows Admin Shares - T1021.002)","AND",0
+55,"hacl(fileServer,workStation,tcp,2049)","LEAF",1
+54,55,-1
+54,33,-1
+56,"ttpExists(workStation,mountd,remoteExploit,linuxRemoteManagement,lateralMovement)","LEAF",1
+54,56,-1
+57,"nfsMount(workStation,'/export',mountd,write,fileServer)","LEAF",1
+54,57,-1
+58,"networkServiceInfo(workStation,mountd,tcp,2049,admin)","LEAF",1
+54,58,-1
+45,54,-1
+59,"RULE 7 (Brute Force Password Spraying - T1110.003)","AND",0
+60,"hacl(fileServer,workStation,tcp,80)","LEAF",1
+59,60,-1
+61,"weakAccount(workStation,user1,xige1234,admin)","LEAF",1
+59,61,-1
+59,33,-1
+45,59,-1
+62,"RULE 7 (Brute Force Password Spraying - T1110.003)","AND",0
+63,"hacl(vpnServer,workStation,httpd,80)","LEAF",1
+62,63,-1
+62,61,-1
+62,6,-1
+45,62,-1
+64,"RULE 7 (Brute Force Password Spraying - T1110.003)","AND",0
+65,"hacl(webServer,workStation,tcp,80)","LEAF",1
+64,65,-1
+64,61,-1
+64,38,-1
+45,64,-1

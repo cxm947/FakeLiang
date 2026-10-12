@@ -1,0 +1,14 @@
+{
+  "src/agents/_model/templates/json_object_instruction.txt": "fe6fa6beb186e9f3d454bdb10d88283f469923e612cbc9df5335e7887fa8c356",
+  "src/agents/executor/templates/correction.txt": "f93fcad68f984f45b61b133379178cc87fe7eb650a63795386d2df4dd56ed2fd",
+  "src/agents/executor/templates/stage_hint.txt": "be057976f7c19442cd130d267a85c83d5ff3ed54393de717d31b9a87241bec59",
+  "src/agents/executor/templates/system.txt": "53f0736d292224427c36a5f69ce5e4938037effbf433b7293b521970e01ec8f0",
+  "src/agents/executor/templates/unresolved.txt": "3b22e94f41af6f6cd8e095ed005beb4b1e1722db1b88d5ccc4c0781ef8336bec",
+  "src/agents/planner/templates/io_system.txt": "048b0dc2353e8085a3ff406d27fe4ecb12f8550ba4ebec4199f9aeb5518a0054",
+  "src/agents/planner/templates/walk_system.txt": "4b60a8e7f847e8c79eda7b4dca4c151f302d2ba72ce9c142491de83ce01a0d7c",
+  "src/agents/verifier/templates/retry_prefix.txt": "e8c289768ca269480d68783e4d16a55e638340aa0e2691b12738d51b274b8800",
+  "src/agents/verifier/templates/retry_suffix.txt": "37485e87dc5671a3821be42a11a78db950227684410aae6401e94b2437270065",
+  "src/agents/verifier/templates/runtime_system.txt": "aa5cd4cdb93d8b6cfc4d2f8eeb5ea84cd01fe84284aab0ed5ea4c0d4bb495731",
+  "src/skills/templates/bind_system.txt": "b5bb2dca482c7323902d3d711d7b9200d989a17239dd3471a1cede41628a4ad1",
+  "src/skills/templates/execution_rules.txt": "4d27ca2d4d188d393b12e54cce0cb87d831e68c4cc626a6a3a2813f44f953ea4"
+}

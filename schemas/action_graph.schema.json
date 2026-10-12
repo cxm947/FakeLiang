@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/agv/action_graph.schema.json",
+  "title": "V1 ActionGraph (1.2.0, E2 faithful mapping + final_goal)",
+  "type": "object",
+  "required": ["schema_version", "final_goal", "inputs", "source_graph", "hosts", "nodes", "diagnostics", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.2.0"
+    },
+    "final_goal": {
+      "description": "Terminal OR node ids: OR facts no other node depends on (out-degree zero in the source graph).",
+      "type": "array",
+      "items": {"$ref": "#/$defs/node_id"},
+      "uniqueItems": true
+    },
+    "inputs": {
+      "type": "object",
+      "required": ["graph_source"],
+      "additionalProperties": false,
+      "properties": {
+        "graph_source": {
+          "type": "object",
+          "required": ["file", "format", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {"type": "string"},
+            "format": {"const": "mulval_txt"},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "host_map": {
+          "type": ["object", "null"],
+          "required": ["source", "records"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "type": "object",
+              "required": ["file", "format", "sha256"],
+              "additionalProperties": false,
+              "properties": {
+                "file": {"type": "string"},
+                "format": {"const": "csv"},
+                "sha256": {"$ref": "#/$defs/sha256"}
+              }
+            },
+            "records": {"type": "integer", "minimum": 0}
+          }
+        },
+        "asset_profile": {
+          "type": ["object", "null"],
+          "required": ["file", "format", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {"type": "string"},
+            "format": {"const": "json"},
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "usage": {"type": "string"}
+          }
+        }
+      }
+    },
+    "source_graph": {
+      "type": "object",
+      "required": ["format", "graph_hash", "nodes", "edges"],
+      "additionalProperties": false,
+      "properties": {
+        "format": {"const": "mulval_txt"},
+        "graph_hash": {"$ref": "#/$defs/sha256"},
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "description", "type", "metric"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"$ref": "#/$defs/node_id"},
+              "description": {"type": "string"},
+              "type": {"enum": ["AND", "OR", "LEAF"]},
+              "metric": {"type": "string"}
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source", "target", "weight"],
+            "additionalProperties": false,
+            "properties": {
+              "source": {"$ref": "#/$defs/node_id"},
+              "target": {"$ref": "#/$defs/node_id"},
+              "weight": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "hosts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["host", "aliases", "kind", "parent", "ips"],
+        "additionalProperties": false,
+        "properties": {
+          "host": {"type": "string"},
+          "aliases": {"type": "array", "items": {"type": "string"}},
+          "kind": {"enum": ["host", "container"]},
+          "parent": {"type": ["string", "null"]},
+          "ips": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "description", "rule_desc", "attack_id", "source_host", "target_host", "service", "protocol", "port", "vulnerability", "dependencies"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"$ref": "#/$defs/node_id"},
+          "type": {"enum": ["AND", "OR"]},
+          "description": {"type": "string"},
+          "rule_desc": {"type": ["string", "null"]},
+          "attack_id": {"type": ["string", "null"]},
+          "source_host": {"type": ["string", "null"]},
+          "target_host": {"type": ["string", "null"]},
+          "service": {"type": ["string", "null"]},
+          "protocol": {"type": ["string", "null"]},
+          "port": {"type": ["string", "null"]},
+          "vulnerability": {"type": ["string", "null"]},
+          "dependencies": {"type": "array", "items": {"$ref": "#/$defs/dependency"}}
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code"],
+        "additionalProperties": true,
+        "properties": {
+          "code": {"type": "string"},
+          "node_ref": {"$ref": "#/$defs/node_id"},
+          "severity": {"enum": ["info", "warning", "error"]}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["input_nodes", "input_edges", "and_nodes", "terminal_or_nodes", "output_nodes", "hosts", "ips", "dependency_entries", "dependency_types", "validation_by_kind", "unknown_leaf_validations"],
+      "additionalProperties": false,
+      "properties": {
+        "input_nodes": {"type": "integer"},
+        "input_edges": {"type": "integer"},
+        "and_nodes": {"type": "integer"},
+        "terminal_or_nodes": {"type": "integer"},
+        "output_nodes": {"type": "integer"},
+        "hosts": {"type": "integer"},
+        "ips": {"type": "integer"},
+        "dependency_entries": {"type": "integer"},
+        "dependency_types": {
+          "type": "object",
+          "required": ["LEAF", "OR", "AND"],
+          "additionalProperties": false,
+          "properties": {
+            "LEAF": {"type": "integer"},
+            "OR": {"type": "integer"},
+            "AND": {"type": "integer"}
+          }
+        },
+        "validation_by_kind": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "unknown_leaf_validations": {"type": "integer"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "node_id": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$"},
+    "dependency": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["ref", "type", "description", "validation"],
+          "additionalProperties": false,
+          "properties": {
+            "ref": {"$ref": "#/$defs/node_id"},
+            "type": {"const": "LEAF"},
+            "description": {"type": "string"},
+            "validation": {
+              "type": "object",
+              "required": ["kind", "fields"],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {"enum": ["network_reachability", "service_exposure", "credential", "capability", "environment_fact", "mount_share", "unknown"]},
+                "fields": {"type": "object"}
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["ref", "type", "description", "produced_by"],
+          "additionalProperties": false,
+          "properties": {
+            "ref": {"$ref": "#/$defs/node_id"},
+            "type": {"const": "OR"},
+            "description": {"type": "string"},
+            "produced_by": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/node_id"}}
+          }
+        },
+        {
+          "type": "object",
+          "required": ["ref", "type", "description"],
+          "additionalProperties": false,
+          "properties": {
+            "ref": {"$ref": "#/$defs/node_id"},
+            "type": {"const": "AND"},
+            "description": {"type": "string"}
+          }
+        }
+      ]
+    }
+  }
+}

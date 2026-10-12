@@ -1,0 +1,38 @@
+{
+  "local_inputs": {
+    "criteria": [],
+    "necessary_evidence": [],
+    "node_goal": "Offline rendering",
+    "scope": {
+      "agent_role": "executor.exploit",
+      "attempt_id": "1",
+      "node_id": "7",
+      "run_id": "offline"
+    },
+    "session_state": {}
+  },
+  "memory": {
+    "recent_messages": [],
+    "scope": {
+      "agent_role": "executor.exploit",
+      "attempt_id": "1",
+      "node_id": "7",
+      "run_id": "offline"
+    },
+    "summary": {
+      "evidence_ids": [],
+      "failure_reason": [],
+      "methods_tried": [],
+      "missing_information": [],
+      "result": []
+    }
+  },
+  "scope": {
+    "agent_role": "executor.exploit",
+    "attempt_id": "1",
+    "node_id": "7",
+    "run_id": "offline"
+  },
+  "skill_text": "Offline example. No tool is executed.",
+  "tools": []
+}

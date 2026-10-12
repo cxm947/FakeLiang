@@ -1,0 +1,29 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "session_ref",
+        "type": "session_ref",
+        "from": "runtime",
+        "desc": "动作后的那条通道（复核就在它上面做）"
+      }
+    ],
+    "optional": [
+      {
+        "name": "required_level",
+        "type": "string",
+        "from": "runtime",
+        "desc": "节点要求的权限等级；判定侧读 requirement.identity_level"
+      }
+    ]
+  },
+  "output": {
+    "evidence": [
+      "call_id",
+      "session_host",
+      "session_identity",
+      "observed_privilege"
+    ]
+  },
+  "judge": "observed_privilege_at_least_node_requirement"
+}

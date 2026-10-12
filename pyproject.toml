@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "attack-graph-validation-agent"
+version = "1.0.0"
+description = "Attack-graph validation agent: MulVAL graph projection, skill registry/selector, execution runtime, multi-agent loop, and the Hongri7 lab harness"
+requires-python = ">=3.10"
+dependencies = [
+    "jsonschema>=4.18,<5",
+    "PyYAML==6.0.3",
+    "Jinja2==3.1.6",
+    "langchain-core==1.6.9",
+    "langgraph==1.2.14",
+    "langgraph-checkpoint-sqlite==3.1.1",
+    "pymetasploit3==1.0.6",
+]
+
+[project.optional-dependencies]
+native = ["langchain-openai==1.7.0", "openai==3.16.2"]
+test = ["jsonschema>=4.18,<5", "pypdf>=4,<7", "PyMuPDF>=1.24,<2", "pytest>=8,<9", "msgpack==1.1.0"]
+lab = ["paramiko==3.5.1"]
+rpc = ["msgpack==1.1.0", "pymetasploit3==1.0.6"]
+
+[project.scripts]
+agv-project = "graph.cli:main"
+agv-visualize = "graph.visualize:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["agents*", "graph*", "orchestration*", "skills*", "runtime*"]
+
+[tool.setuptools.package-data]
+"agents.prompting" = ["*.json"]
+"agents._model" = ["templates/*.txt", "templates/*.yaml"]
+"agents.planner" = ["templates/*.txt", "templates/*.yaml"]
+"agents.executor" = ["templates/*.txt", "templates/*.yaml"]
+"agents.verifier" = ["templates/*.txt", "templates/*.yaml"]
+"skills" = ["templates/*.txt", "templates/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

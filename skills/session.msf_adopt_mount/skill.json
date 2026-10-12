@@ -1,0 +1,105 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "target_host",
+        "type": "host_ref",
+        "from": "graph",
+        "desc": "端点要落上去并被纳管的目标主机（图里的逻辑名）"
+      },
+      {
+        "name": "launch_ref",
+        "type": "session_ref",
+        "from": "runtime",
+        "desc": "在目标上运行落地文件的那条通道；没有它，文件只是被放上去，不算纳管"
+      }
+    ],
+    "optional": [
+      {
+        "name": "lhost",
+        "type": "host_ref",
+        "from": "runtime",
+        "desc": "端点回连地址；省略时在执行主机上量（ip -4 route get <target>）。经中间机时给中间机可达的那个。"
+      },
+      {
+        "name": "lport",
+        "type": "port",
+        "from": "config",
+        "desc": "回连端口；同一段地址空间里已有接收器占用时要换一个"
+      },
+      {
+        "name": "shell",
+        "type": "string",
+        "from": "config",
+        "desc": "端点落点的壳风味：posix（默认）或 cmd；决定端点格式与落地语法"
+      },
+      {
+        "name": "payload",
+        "type": "string",
+        "from": "config",
+        "desc": "覆盖控制台端点的模块名（目标架构与默认不同时必须给）"
+      },
+      {
+        "name": "payload_format",
+        "type": "string",
+        "from": "config",
+        "desc": "覆盖端点容器格式（默认按壳风味：elf / exe）"
+      },
+      {
+        "name": "remote_dir",
+        "type": "path",
+        "from": "config",
+        "desc": "端点在落点上的目录（默认按壳风味）"
+      },
+      {
+        "name": "client_path",
+        "type": "path",
+        "from": "config",
+        "desc": "执行主机上控制台客户端脚本的路径；省略时用运行层默认"
+      },
+      {
+        "name": "session_wait",
+        "type": "int",
+        "from": "config",
+        "desc": "等待控制台确认新会话的秒数，默认 180"
+      },
+      {
+        "name": "poll_interval",
+        "type": "int",
+        "from": "config",
+        "desc": "等待期间两次查回之间的间隔秒数，默认 5"
+      },
+      {
+        "name": "receiver_log",
+        "type": "path",
+        "from": "config",
+        "desc": "接收器日志在执行主机上的落地路径；省略时按调用号生成"
+      },
+      {
+        "name": "session_ref",
+        "type": "session_ref",
+        "from": "runtime",
+        "desc": "看得见那个文件系统的通道（只负责写字节）；省略时由执行主机直接写"
+      },
+      {
+        "name": "stage_path",
+        "type": "path",
+        "from": "config",
+        "desc": "写入端看到的落地路径（挂载点两侧路径不同时必须给）"
+      },
+      {
+        "name": "launch_path",
+        "type": "path",
+        "from": "config",
+        "desc": "启动端看到的同一个文件的路径；省略时与 stage_path 相同"
+      },
+      {
+        "name": "stage_shell",
+        "type": "string",
+        "from": "config",
+        "desc": "写字节那一侧执行点的壳风味（默认 posix）：与端点落点的壳风味是两回事"
+      }
+    ]
+  },
+  "judge": "target_echo_present"
+}

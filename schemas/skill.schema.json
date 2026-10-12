@@ -1,0 +1,1719 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agv.local/schemas/skill.schema.json",
+  "title": "AGV skill card",
+  "description": "机器契约：输入参数、输出证据、判据与执行声明。方法说明放同目录 SKILL.md。",
+  "type": "object",
+  "required": [
+    "status",
+    "assembly",
+    "input",
+    "judge"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "assembly decides who builds the command line: a fixed card declares run.command, or ships an entry.py next to the card - the file itself is the declaration (r114); a model card carries neither and must declare output.",
+      "if": {
+        "properties": {
+          "assembly": {
+            "const": "fixed"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "required": [
+            "output"
+          ]
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "run"
+          ]
+        },
+        "required": [
+          "output"
+        ]
+      }
+    }
+  ],
+  "properties": {
+    "assembly": {
+      "description": "fixed = the program assembles one declared or card-built argv and the model never sees it; model = the model chooses the method and answers an action (tool_call / code / gap) under the card's execution declarations",
+      "enum": [
+        "fixed",
+        "model"
+      ]
+    },
+    "status": {
+      "enum": [
+        "planned",
+        "implemented",
+        "program_only",
+        "deprecated"
+      ]
+    },
+    "input": {
+      "type": "object",
+      "required": [
+        "required"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/param"
+          }
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/param"
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "judge": {
+      "description": "the single judge name resolved against runtime.checker RULES; the report sequence around it (freshness, target) is fixed by the checker",
+      "type": "string",
+      "minLength": 1
+    },
+    "contract_v2": {
+      "description": "Execution-layer card contract (docs/product/skill_card_contract_v2.md). Optional: a legacy card keeps its old fields and simply has no v2 generation yet. When present it must be complete - the runtime picks a generation explicitly and never falls back.",
+      "$ref": "#/$defs/contract_v2"
+    },
+    "runs_at": {
+      "description": "Where the card's own tool runs. ``base`` = the tool lives on the control point (the netexec / impacket family): its node's position supplies reachability only, so the run must not wrap the call in that position's hop. Absent = the card drives the position itself (it requires session_ref) or runs wherever the position is.",
+      "enum": [
+        "base"
+      ]
+    },
+    "run": {
+      "description": "declarative simple fixed: the program splits the command, binds {name} tokens from the inputs, wraps the call marker and runs argv directly",
+      "type": "object",
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeout": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "parse": {
+      "description": "the built-in evidence parser name (runtime.assembly PARSERS) this card reads its output with",
+      "type": "string",
+      "minLength": 1
+    },
+    "supplemental_observation": {
+      "description": "r124: the card's own confirmation probe. Present = the merged E3 stage may run this card once more, after a trial judgement that did not reach a terminal verdict, and recompute the same judge over the merged evidence (a value the action call already reported is never overwritten). Absent = no probe, the trial judgement stands. card_ref must name a card the program can assemble by itself - a fixed card; today that is the card itself.",
+      "type": "object",
+      "required": [
+        "card_ref"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "card_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "execution": {
+      "description": "what a model card's answer may use: tool entries, the generated entry file, interpreters, caps",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "entry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interpreters": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "timeout": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "keep_material": {
+          "type": "boolean"
+        },
+        "data_files": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "tool_bindings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "variant_id",
+              "template_labels",
+              "tools",
+              "interpreters"
+            ],
+            "properties": {
+              "variant_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "template_labels": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "tools": {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "interpreters": {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "target_verification": {
+      "description": "Subject verification is required by default. A genuinely targetless operation must explicitly declare why; a bound or observed target cannot be waived.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "required",
+            "targetless"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "targetless"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "reason"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "v2ObservationSource": {
+      "description": "One observation input's source (bridge run322): the fact contract, the registered derivation rule, the bindings the fact is about, and the receipts that may feed it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fact_contract_ref",
+        "subject_bindings",
+        "derive_rule_ref",
+        "accepted_evidence"
+      ],
+      "properties": {
+        "fact_contract_ref": {
+          "$ref": "#/$defs/v2Text",
+          "description": "The fact contract this observation means, versioned (fact:<name>@<version>)."
+        },
+        "subject_bindings": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/v2Text"
+          }
+        },
+        "derive_rule_ref": {
+          "$ref": "#/$defs/v2Text",
+          "description": "A rule registered in runtime/observation_rules.py; an unregistered rule is a named gap, never a value."
+        },
+        "accepted_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "all_of"
+          ],
+          "properties": {
+            "all_of": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "as",
+                  "tool_contract_ref"
+                ],
+                "properties": {
+                  "as": {
+                    "$ref": "#/$defs/v2Text"
+                  },
+                  "tool_contract_ref": {
+                    "$ref": "#/$defs/v2Text"
+                  },
+                  "event_schema_ref": {
+                    "$ref": "#/$defs/v2Text"
+                  },
+                  "select": {
+                    "$ref": "#/$defs/v2Text"
+                  }
+                }
+              }
+            },
+            "any_of": {
+              "description": "Alternative collection channels: any one of these receipts may feed the rule (an all_of row is 'these together').",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "as",
+                  "tool_contract_ref"
+                ],
+                "properties": {
+                  "as": {
+                    "$ref": "#/$defs/v2Text"
+                  },
+                  "tool_contract_ref": {
+                    "$ref": "#/$defs/v2Text"
+                  },
+                  "event_schema_ref": {
+                    "$ref": "#/$defs/v2Text"
+                  },
+                  "select": {
+                    "$ref": "#/$defs/v2Text"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "observation_policy_ref": {
+          "$ref": "#/$defs/v2Text"
+        }
+      }
+    },
+    "param": {
+      "type": "object",
+      "required": [
+        "name",
+        "type",
+        "from"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "host_ref",
+            "url",
+            "port",
+            "bool",
+            "cred_ref",
+            "session_ref",
+            "string",
+            "int",
+            "path"
+          ]
+        },
+        "from": {
+          "enum": [
+            "graph",
+            "runtime",
+            "config"
+          ]
+        },
+        "desc": {
+          "type": "string"
+        },
+        "min_privilege": {
+          "description": "For session_ref inputs: the identity tier the session must already have (runtime/identity.py). The selector treats a weaker or unknown session as pending, never as bound.",
+          "enum": [
+            "user",
+            "admin",
+            "system"
+          ]
+        },
+        "const": {
+          "description": "Optional scalar constant pinned for this input (retrieval method shape, specs/004 搂4.3 / R05). Scalars only and must fit the declared type; reference-typed inputs must not declare it. A mismatch drops the candidate (never read as an ignorable optional); absence stays a gap, and false/0 are values, not \"undeclared\".",
+          "type": [
+            "string",
+            "boolean",
+            "integer"
+          ]
+        }
+      }
+    },
+    "contract_v2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "card_id",
+        "card_version",
+        "content_id",
+        "catalog_entry_ref",
+        "owner",
+        "method_ref",
+        "execution_model",
+        "phase_usage",
+        "promise",
+        "input_sources",
+        "observation_policy",
+        "applicability",
+        "variants",
+        "tool_surface",
+        "construction_space",
+        "call_preconditions",
+        "outputs",
+        "evidence",
+        "failures",
+        "idempotency",
+        "lifecycle",
+        "submission",
+        "acceptance_refs",
+        "documentation",
+        "reliability",
+        "side_effects",
+        "requirements",
+        "gates",
+        "required_features",
+        "knowledge",
+        "proposal_contract",
+        "category"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "2.0.0"
+        },
+        "card_id": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "card_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "content_id": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "catalog_entry_ref": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "owner": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "method_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "version"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            }
+          }
+        },
+        "execution_model": {
+          "const": "model_constructed"
+        },
+        "phase_usage": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contains": {
+            "const": "execution"
+          }
+        },
+        "compatibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "legacy_refs",
+            "generation_selection",
+            "fallback_to_legacy",
+            "legacy_judge_usage"
+          ],
+          "properties": {
+            "legacy_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "generation_selection": {
+              "type": "string",
+              "minLength": 1
+            },
+            "fallback_to_legacy": {
+              "const": false
+            },
+            "legacy_judge_usage": {
+              "const": "legacy_runs_only"
+            },
+            "legacy_input_mapping": {
+              "type": "object"
+            }
+          }
+        },
+        "promise": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "action",
+            "target_boundary",
+            "outputs",
+            "exclusions"
+          ],
+          "properties": {
+            "action": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "target_boundary": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "outputs": {
+              "$ref": "#/$defs/v2List"
+            },
+            "exclusions": {
+              "$ref": "#/$defs/v2List"
+            }
+          }
+        },
+        "input_sources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "task",
+            "observation",
+            "model"
+          ],
+          "properties": {
+            "task": {
+              "$ref": "#/$defs/v2InputBucket"
+            },
+            "observation": {
+              "$ref": "#/$defs/v2InputBucket"
+            },
+            "model": {
+              "$ref": "#/$defs/v2InputBucket"
+            }
+          }
+        },
+        "observation_sources": {
+          "description": "How each observation input is settled (bridge run322): the fact contract it means, the registered derivation rule, the bindings it is about, and the tool contracts whose receipts may feed it. An observation the card does not declare has no declared provider - the run reports FACT_PROVIDER_UNAVAILABLE instead of inventing a value.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/v2ObservationSource"
+          }
+        },
+        "observation_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "envelope_required",
+            "max_age_seconds",
+            "invalidate_on",
+            "missing_or_expired",
+            "derived_observation_requires"
+          ],
+          "properties": {
+            "envelope_required": {
+              "type": "array",
+              "minItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "allOf": [
+                {
+                  "contains": {
+                    "const": "subject_ref"
+                  }
+                },
+                {
+                  "contains": {
+                    "const": "transport_ref"
+                  }
+                },
+                {
+                  "contains": {
+                    "const": "observed_at"
+                  }
+                },
+                {
+                  "contains": {
+                    "const": "raw_record_ref"
+                  }
+                }
+              ]
+            },
+            "max_age_seconds": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "invalidate_on": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "missing_or_expired": {
+              "const": "unknown"
+            },
+            "derived_observation_requires": {
+              "$ref": "#/$defs/v2Text"
+            }
+          }
+        },
+        "applicability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "predicates",
+            "common",
+            "false_behavior",
+            "unknown_behavior"
+          ],
+          "properties": {
+            "predicates": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/v2Predicate"
+              }
+            },
+            "common": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "established_by_this_method": {
+              "description": "The predicates the operation itself proves (bridge run322): they are not admission gates, and the run checks them against the evidence before a completion claim.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "false_behavior": {
+              "const": "block_affected_calls"
+            },
+            "unknown_behavior": {
+              "const": "allow_observation_only"
+            }
+          }
+        },
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/v2Variant"
+          }
+        },
+        "tool_surface": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "common",
+            "contracts"
+          ],
+          "properties": {
+            "common": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "contracts": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*@\\d+\\.\\d+\\.\\d+$"
+              }
+            },
+            "binding": {
+              "type": "string",
+              "minLength": 1
+            },
+            "enforcement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "require_same_task_target": {
+              "type": "boolean"
+            }
+          }
+        },
+        "construction_space": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "allowed",
+            "invariants",
+            "sequencing",
+            "variant_change"
+          ],
+          "properties": {
+            "allowed": {
+              "$ref": "#/$defs/v2List"
+            },
+            "invariants": {
+              "$ref": "#/$defs/v2List"
+            },
+            "sequencing": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "variant_change": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "model_authored_actions": {
+              "description": "The escape hatch that keeps the model from being a form filler: whether it may author the action content itself (commands, scripts, payloads), which tool carries it, and which effects stay in scope.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "allowed",
+                "scope",
+                "evidence"
+              ],
+              "properties": {
+                "allowed": {
+                  "type": "boolean"
+                },
+                "tool_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "evidence": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "call_preconditions": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/v2List"
+          }
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema"
+          ],
+          "properties": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required",
+            "final_verification"
+          ],
+          "properties": {
+            "required": {
+              "$ref": "#/$defs/v2List"
+            },
+            "complete_claim_requires": {
+              "$ref": "#/$defs/v2List"
+            },
+            "final_verification": {
+              "const": "deferred"
+            }
+          }
+        },
+        "failures": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool_effect_states",
+            "decisions",
+            "automatic_business_retry",
+            "automatic_business_fallback"
+          ],
+          "properties": {
+            "tool_effect_states": {
+              "$ref": "#/$defs/v2List"
+            },
+            "decisions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object"
+              }
+            },
+            "automatic_business_retry": {
+              "const": false
+            },
+            "automatic_business_fallback": {
+              "const": false
+            }
+          }
+        },
+        "idempotency": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mutation_key",
+            "guarantee"
+          ],
+          "properties": {
+            "mutation_key": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "guarantee": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "read_tools": {
+              "$ref": "#/$defs/v2List"
+            },
+            "mutation_requirement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "deduplication_window_seconds": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "transport_retry": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "obligations",
+            "owner",
+            "transfer_requires",
+            "unload",
+            "restoration",
+            "phases",
+            "restore_specs"
+          ],
+          "properties": {
+            "obligations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/v2Obligation"
+              }
+            },
+            "phases": {
+              "description": "prepare / implement / restore as first-class phases: each one says whether it is required, what may be observed, what may be changed, and what it must hand over.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "prepare",
+                "implement",
+                "restore"
+              ],
+              "properties": {
+                "prepare": {
+                  "$ref": "#/$defs/v2Phase"
+                },
+                "implement": {
+                  "$ref": "#/$defs/v2Phase"
+                },
+                "restore": {
+                  "$ref": "#/$defs/v2Phase"
+                }
+              }
+            },
+            "restore_specs": {
+              "description": "What 'back to the original state' means in scope: per resource, per property, with a baseline, a comparator and a concurrency guard. Empty is allowed only when nothing needs restoring.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/v2RestoreSpec"
+              }
+            },
+            "owner": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "transfer_requires": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "unload": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "restoration": {
+              "$ref": "#/$defs/v2Text"
+            }
+          }
+        },
+        "submission": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "store",
+            "receipt_status",
+            "final_graph_satisfaction",
+            "records_required"
+          ],
+          "properties": {
+            "store": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "receipt_status": {
+              "const": "pending_followup"
+            },
+            "final_graph_satisfaction": {
+              "const": "deferred"
+            },
+            "records_required": {
+              "$ref": "#/$defs/v2List"
+            }
+          }
+        },
+        "acceptance_refs": {
+          "$ref": "#/$defs/v2List"
+        },
+        "reliability": {
+          "description": "Where the reliability rating comes from. The rating itself is computed by a policy over execution evidence, never typed in as an adjective.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "policy_ref",
+            "assessment_collection_ref"
+          ],
+          "properties": {
+            "policy_ref": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "assessment_collection_ref": {
+              "$ref": "#/$defs/v2Text"
+            }
+          }
+        },
+        "side_effects": {
+          "description": "Environment changes beyond the main deliverable, declared per item so selection can compare them and the lifecycle can owe something for each.",
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "phase_refs",
+              "occurrence",
+              "reversibility",
+              "persistence"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/v2Text"
+              },
+              "kind": {
+                "enum": [
+                  "state_change",
+                  "resource_create",
+                  "resource_delete",
+                  "availability_change",
+                  "access_change",
+                  "sensitive_materialization",
+                  "external_event",
+                  "resource_consumption"
+                ]
+              },
+              "phase_refs": {
+                "$ref": "#/$defs/v2List"
+              },
+              "occurrence": {
+                "enum": [
+                  "required",
+                  "possible",
+                  "conditional"
+                ]
+              },
+              "condition_requirement_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "impact": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "unknown"
+                ]
+              },
+              "reversibility": {
+                "enum": [
+                  "exact",
+                  "equivalent",
+                  "partial",
+                  "none",
+                  "unknown"
+                ]
+              },
+              "persistence": {
+                "enum": [
+                  "transient",
+                  "until_restored",
+                  "retained",
+                  "permanent",
+                  "unknown"
+                ]
+              },
+              "restore_item_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "requirements": {
+          "description": "What must hold, expressed over typed facts: the expression is a pure judgement over bound facts, never a tool call.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/v2Requirement"
+          }
+        },
+        "gates": {
+          "description": "Which requirement holds before which action, and what happens when the answer is false or unknown.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "applies_before",
+              "expression",
+              "on_false",
+              "on_unknown"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/v2Text"
+              },
+              "applies_before": {
+                "$ref": "#/$defs/v2List"
+              },
+              "expression": {
+                "type": "object"
+              },
+              "on_false": {
+                "const": "block_affected_actions"
+              },
+              "on_unknown": {
+                "const": "allow_observation_only"
+              }
+            }
+          }
+        },
+        "required_features": {
+          "description": "Contract features a runtime must understand; an executor that does not know one of them must refuse to load the card instead of ignoring it.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "documentation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "summary",
+            "usage",
+            "limitations",
+            "example_refs"
+          ],
+          "properties": {
+            "summary": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "usage": {
+              "$ref": "#/$defs/v2Text"
+            },
+            "limitations": {
+              "$ref": "#/$defs/v2List"
+            },
+            "example_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "knowledge": {
+          "description": "Expertise, not a step list: what this method is, when it applies, how it works, how it fails, and what good evidence looks like. Advertised by name and description, loaded when the card is selected (progressive disclosure).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "overview",
+            "when_to_use",
+            "how_it_works",
+            "failure_modes",
+            "evidence_hints"
+          ],
+          "properties": {
+            "overview": {
+              "type": "string",
+              "minLength": 1
+            },
+            "when_to_use": {
+              "type": "string",
+              "minLength": 1
+            },
+            "how_it_works": {
+              "type": "string",
+              "minLength": 1
+            },
+            "failure_modes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "evidence_hints": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "proposal_contract": {
+          "description": "What the model may hand back when the card does not fit the site: a recorded gap or a draft, never an auto-applied change.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "may_propose",
+            "record_only"
+          ],
+          "properties": {
+            "may_propose": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "enum": [
+                  "gap",
+                  "variant_draft",
+                  "evidence_request",
+                  "hand_back"
+                ]
+              }
+            },
+            "record_only": {
+              "const": true
+            }
+          }
+        },
+        "category": {
+          "description": "Which family this skill belongs to: reconnaissance (observe a fact), validation (confirm a goal's sub-facts after acting), method (carry out one graph-given method), session (hand over a usable session reference), tooling (how to drive one tool family).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "family"
+          ],
+          "properties": {
+            "family": {
+              "enum": [
+                "recon",
+                "validation",
+                "method",
+                "session",
+                "tooling"
+              ]
+            },
+            "subtype": {
+              "type": "string",
+              "minLength": 1
+            },
+            "answers": {
+              "description": "For recon/validation: which fact kinds this card can establish.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "application_identities": {
+          "description": "Consumer-owned application identities matched against native HTTP evidence. Model parameters cannot replace these declarations.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/v2ApplicationIdentity"
+          }
+        }
+      }
+    },
+    "v2Text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "v2List": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "v2InputBucket": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "schema",
+          "required_before"
+        ],
+        "properties": {
+          "schema": {
+            "type": "object"
+          },
+          "required_before": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "default": {},
+          "sensitivity": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "v2Predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "input",
+        "op",
+        "value"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "input": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "op": {
+          "enum": [
+            "eq",
+            "ne",
+            "in",
+            "contains",
+            "semver_satisfies",
+            "gte",
+            "lte",
+            "matches",
+            "exists"
+          ]
+        },
+        "value": {}
+      }
+    },
+    "v2Variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "when_all",
+        "tools",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "when_all": {
+          "$ref": "#/$defs/v2List"
+        },
+        "tools": {
+          "$ref": "#/$defs/v2List"
+        },
+        "description": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "delivers": {
+          "description": "What this variant hands over to the task contract (e.g. effect_evidence_ref, session_ref, observation_ref). A task that requires a session cannot be served by a variant that only proves an effect.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "v2Obligation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "applies_to",
+        "due",
+        "discharge",
+        "fulfillment_phase",
+        "completion_impact"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "applies_to": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "due": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "discharge": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "fulfillment_phase": {
+          "description": "Which phase is where this obligation gets fulfilled: the phase says where, the obligation says what and when.",
+          "enum": [
+            "prepare",
+            "implement",
+            "restore"
+          ]
+        },
+        "restore_spec_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "completion_impact": {
+          "enum": [
+            "blocks_submission",
+            "blocks_lifecycle_closure"
+          ]
+        }
+      }
+    },
+    "v2Phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "applicability",
+        "entry_requirement_ref",
+        "observation_tool_refs",
+        "effect_tool_refs",
+        "allowed_effect_ids",
+        "output_schema_ref",
+        "evidence_contract_ref",
+        "completion_requirement_ref"
+      ],
+      "properties": {
+        "applicability": {
+          "enum": [
+            "required",
+            "conditional",
+            "not_required"
+          ]
+        },
+        "activation_requirement_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_required_reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry_requirement_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observation_tool_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "effect_tool_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "allowed_effect_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "output_schema_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_contract_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "completion_requirement_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "restore_spec_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "v2RestoreSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "items",
+        "partial_acceptance"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "resource_binding",
+              "properties",
+              "baseline_capture",
+              "comparator_ref",
+              "concurrency_guard_ref",
+              "post_observation_tool_refs",
+              "evidence_contract_ref",
+              "required"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/v2Text"
+              },
+              "resource_binding": {
+                "type": "object"
+              },
+              "properties": {
+                "$ref": "#/$defs/v2List"
+              },
+              "baseline_capture": {
+                "const": "before_first_mutation"
+              },
+              "comparator_ref": {
+                "$ref": "#/$defs/v2Text"
+              },
+              "concurrency_guard_ref": {
+                "$ref": "#/$defs/v2Text"
+              },
+              "post_observation_tool_refs": {
+                "$ref": "#/$defs/v2List"
+              },
+              "evidence_contract_ref": {
+                "$ref": "#/$defs/v2Text"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "retained_resource_rules": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "excluded_effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "reason"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "partial_acceptance": {
+          "enum": [
+            "report_only",
+            "contractual_residuals"
+          ]
+        },
+        "accepted_residuals": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "v2Requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "fact_slots",
+        "expression"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/v2Text"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "fact_slots": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "fact_type_ref"
+            ],
+            "properties": {
+              "fact_type_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subject_binding": {
+                "type": "object"
+              },
+              "scope_bindings": {
+                "type": "object"
+              },
+              "source": {
+                "type": "object"
+              },
+              "max_age_seconds": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "accepted_provenance": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "enum": [
+                    "tool_observation",
+                    "deterministic_derivation",
+                    "model_assertion"
+                  ]
+                }
+              },
+              "conflict_policy": {
+                "enum": [
+                  "unknown",
+                  "prefer_newest_with_proven_order"
+                ]
+              }
+            }
+          }
+        },
+        "expression": {
+          "type": "object"
+        }
+      }
+    },
+    "v2ApplicationIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "match_any"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/v2Text",
+          "pattern": "\\S"
+        },
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/v2Text",
+            "pattern": "\\S"
+          }
+        },
+        "match_any": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "literal"
+            ],
+            "properties": {
+              "source": {
+                "enum": [
+                  "title",
+                  "body",
+                  "path"
+                ]
+              },
+              "literal": {
+                "$ref": "#/$defs/v2Text",
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
+        "version_pattern": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\(\\?P<version>"
+        }
+      }
+    }
+  }
+}

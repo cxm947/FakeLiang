@@ -1,0 +1,25 @@
+{
+  "account_aliases": {},
+  "credentials": {
+    "domain_administrator": {
+      "user": "Administrator",
+      "domain": "DEMO",
+      "secret": "PLACEHOLDER",
+      "mode": "password",
+      "role": "domain_administrator",
+      "source": "operator input",
+      "provenance": "fill in where the material came from; never invent it"
+    }
+  },
+  "host_platforms": {
+    "attacker": "posix",
+    "kali": "posix",
+    "web1": "posix",
+    "web2": "windows",
+    "web2_docker": "posix",
+    "pc1": "windows",
+    "pc2": "windows",
+    "dc": "windows"
+  },
+  "allowed_object_scope": "agv:"
+}

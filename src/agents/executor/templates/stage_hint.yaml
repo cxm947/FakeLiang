@@ -1,0 +1,2 @@
+version: 1
+template: 'or {"kind":"call","request":{"tool":"stage"}}   # the card fixed step: it owns the wire shape (fields, file name, payload); you only ask for it, and an optional "payload" overrides the card payload. Do not rebuild that request yourself.'

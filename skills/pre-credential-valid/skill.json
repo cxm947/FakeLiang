@@ -1,0 +1,7 @@
+{
+  "allowed_tools": [
+    "cmd",
+    "tool",
+    "finish"
+  ]
+}

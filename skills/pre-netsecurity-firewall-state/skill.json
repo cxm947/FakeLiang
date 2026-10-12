@@ -1,0 +1,40 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "target_host",
+        "type": "host_ref",
+        "from": "graph"
+      },
+      {
+        "name": "expected_token",
+        "type": "string",
+        "from": "graph"
+      },
+      {
+        "name": "check_shape",
+        "type": "string",
+        "from": "graph",
+        "const": "firewall_profiles"
+      }
+    ],
+    "optional": [
+      {
+        "name": "session_ref",
+        "type": "session_ref",
+        "from": "runtime"
+      }
+    ]
+  },
+  "output": {
+    "evidence": [
+      "policy_store",
+      "profiles",
+      "profile_scope",
+      "query_complete",
+      "active_profiles",
+      "observer_identity"
+    ]
+  },
+  "judge": "firewall_profiles_match"
+}

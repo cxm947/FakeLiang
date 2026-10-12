@@ -1,0 +1,32 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "session_ref",
+        "type": "session_ref",
+        "from": "runtime"
+      }
+    ],
+    "optional": [
+      {
+        "name": "suid_binary",
+        "type": "path",
+        "from": "runtime",
+        "desc": "显式锁定 SUID 程序；省略时优先取发现结果中的首个非系统路径，没有则取首个候选"
+      },
+      {
+        "name": "helper_dir",
+        "type": "path",
+        "from": "config",
+        "desc": "helper 落盘目录，需要可写；省略时使用入口既有默认"
+      },
+      {
+        "name": "helper_name",
+        "type": "string",
+        "from": "config",
+        "desc": "helper 文件名，默认 ps（跟着 SUID 程序调用的相对程序名）"
+      }
+    ]
+  },
+  "judge": "observed_privilege_at_least_node_requirement"
+}

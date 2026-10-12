@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.2.0",
+  "final_goal": [
+    "6"
+  ],
+  "inputs": {
+    "graph_source": {
+      "file": "data/samples/host_demo/demo.txt",
+      "format": "mulval_txt",
+      "sha256": "fa0f26838fa557e762990b69e16733a1cd202076522e0b25f71670bf2dbd2195"
+    },
+    "host_map": {
+      "source": {
+        "file": "data/samples/lab_demo/host_ip_map.csv",
+        "format": "csv",
+        "sha256": "a57916c52b148294b6fb040a6c4b11fa97fc000a5029f6532832bf7feb785e9d"
+      },
+      "records": 2
+    }
+  },
+  "source_graph": {
+    "format": "mulval_txt",
+    "graph_hash": "578f17025f9d7a9d288adfd1fad30b14fc1f58467fa8f11e9e045dfc5df51c8a",
+    "nodes": [
+      {
+        "id": "1",
+        "description": "execCode(host_a,user)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "2",
+        "description": "RULE 2 (Valid Accounts - T1078)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "3",
+        "description": "leakAccount(synthetic_user,host_a,user)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "4",
+        "description": "hacl(internet,host_a,tcp,443)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "5",
+        "description": "attackerLocated(internet)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "6",
+        "description": "execCode(host_b,user)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "7",
+        "description": "RULE 32 (Exploitation of Remote Services - T1210)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "8",
+        "description": "hacl(host_a,host_b,tcp,22)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "9",
+        "description": "networkServiceInfo(host_b,synthetic_service,tcp,22,user)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "10",
+        "description": "ttpExists(host_b,synthetic_service,remoteExploit,remoteServicesExploitation,lateralMovement)",
+        "type": "LEAF",
+        "metric": "1"
+      }
+    ],
+    "edges": [
+      {
+        "source": "1",
+        "target": "7",
+        "weight": "-1"
+      },
+      {
+        "source": "2",
+        "target": "1",
+        "weight": "-1"
+      },
+      {
+        "source": "3",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "4",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "5",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "7",
+        "target": "6",
+        "weight": "-1"
+      },
+      {
+        "source": "8",
+        "target": "7",
+        "weight": "-1"
+      },
+      {
+        "source": "9",
+        "target": "7",
+        "weight": "-1"
+      },
+      {
+        "source": "10",
+        "target": "7",
+        "weight": "-1"
+      }
+    ]
+  },
+  "hosts": [
+    {
+      "host": "host_a",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.0.2.10"
+      ]
+    },
+    {
+      "host": "host_b",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.0.2.11"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "2",
+      "type": "AND",
+      "description": "RULE 2 (Valid Accounts - T1078)",
+      "rule_desc": "Valid Accounts - T1078",
+      "attack_id": "T1078",
+      "source_host": "internet",
+      "target_host": "host_a",
+      "service": null,
+      "protocol": "tcp",
+      "port": "443",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "3",
+          "type": "LEAF",
+          "description": "leakAccount(synthetic_user,host_a,user)",
+          "validation": {
+            "kind": "credential",
+            "fields": {
+              "user": "synthetic_user",
+              "host": {
+                "term": "host_a"
+              },
+              "privilege": "user"
+            }
+          }
+        },
+        {
+          "ref": "4",
+          "type": "LEAF",
+          "description": "hacl(internet,host_a,tcp,443)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "internet",
+                "host_refs": []
+              },
+              "to": {
+                "term": "host_a"
+              },
+              "protocol": "tcp",
+              "port": "443"
+            }
+          }
+        },
+        {
+          "ref": "5",
+          "type": "LEAF",
+          "description": "attackerLocated(internet)",
+          "validation": {
+            "kind": "environment_fact",
+            "fields": {
+              "predicate": "attackerLocated",
+              "arguments": [
+                "internet"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "type": "OR",
+      "description": "execCode(host_b,user)",
+      "rule_desc": null,
+      "attack_id": null,
+      "source_host": null,
+      "target_host": "host_b",
+      "service": null,
+      "protocol": null,
+      "port": null,
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "7",
+          "type": "AND",
+          "description": "RULE 32 (Exploitation of Remote Services - T1210)"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "type": "AND",
+      "description": "RULE 32 (Exploitation of Remote Services - T1210)",
+      "rule_desc": "Exploitation of Remote Services - T1210",
+      "attack_id": "T1210",
+      "source_host": "host_a",
+      "target_host": "host_b",
+      "service": "synthetic_service",
+      "protocol": "tcp",
+      "port": "22",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "1",
+          "type": "OR",
+          "description": "execCode(host_a,user)",
+          "produced_by": [
+            "2"
+          ]
+        },
+        {
+          "ref": "8",
+          "type": "LEAF",
+          "description": "hacl(host_a,host_b,tcp,22)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "host_a"
+              },
+              "to": {
+                "term": "host_b"
+              },
+              "protocol": "tcp",
+              "port": "22"
+            }
+          }
+        },
+        {
+          "ref": "9",
+          "type": "LEAF",
+          "description": "networkServiceInfo(host_b,synthetic_service,tcp,22,user)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "host_b"
+              },
+              "service": "synthetic_service",
+              "protocol": "tcp",
+              "port": "22",
+              "privilege": "user"
+            }
+          }
+        },
+        {
+          "ref": "10",
+          "type": "LEAF",
+          "description": "ttpExists(host_b,synthetic_service,remoteExploit,remoteServicesExploitation,lateralMovement)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "host_b"
+              },
+              "object": null,
+              "software": "synthetic_service",
+              "side": "remoteExploit",
+              "capability": "remoteServicesExploitation",
+              "tactic": "lateralMovement"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "summary": {
+    "input_nodes": 10,
+    "input_edges": 9,
+    "and_nodes": 2,
+    "terminal_or_nodes": 1,
+    "output_nodes": 3,
+    "hosts": 2,
+    "ips": 2,
+    "dependency_entries": 8,
+    "dependency_types": {
+      "LEAF": 6,
+      "OR": 1,
+      "AND": 1
+    },
+    "validation_by_kind": {
+      "capability": 1,
+      "credential": 1,
+      "environment_fact": 1,
+      "network_reachability": 2,
+      "service_exposure": 1
+    },
+    "unknown_leaf_validations": 0
+  }
+}

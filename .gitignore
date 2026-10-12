@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+output/
+tmp/
+data/inputs/*
+!data/inputs/.gitkeep
+.pytest_cache/
+.idea/
+
+# Canonical Hongri7 offline fixtures
+!data/inputs/hongri7/
+data/inputs/hongri7/*
+!data/inputs/hongri7/Hongri7_v2.txt
+!data/inputs/hongri7/host_ip_map.csv
+!data/inputs/hongri7/assets.json
+
+# Release-local environments.
+.venv*/

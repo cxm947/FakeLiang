@@ -1,0 +1,4 @@
+version: 1
+template: |2-
+
+  Return one JSON object with exactly the contract's fields.

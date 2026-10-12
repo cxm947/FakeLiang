@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agv.local/schemas/registry.schema.json",
+  "title": "AGV skill registry",
+  "description": "手写源：每条技能=一个固定方法。字段与 skills/<id>/skill.json 配套使用。",
+  "type": "object",
+  "required": [
+    "schema",
+    "version",
+    "updated_at",
+    "skills"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "note": {
+      "type": "string"
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/skill"
+      }
+    },
+    "chains": {
+      "description": "方法链：一个运行现场需要的供给路径（need），由有序的段组成，每段引用一条已登记技能。段间参数绑定由运行层按 role 语义完成——新增 role 必须先有绑定器与测试，否则链不可执行。",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/chain"
+      }
+    }
+  },
+  "$defs": {
+    "skill": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "desc",
+        "tactic",
+        "technique",
+        "service",
+        "vuln",
+        "path"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(?:pre|post|exploit|session)\\.[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "desc": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tactic": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^TA\\d{4}$"
+        },
+        "technique": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^T\\d{4}(\\.\\d{3})?$"
+        },
+        "service": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_.\\-]*(/\\d{1,5})?$"
+          }
+        },
+        "vuln": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(CVE-\\d{4}-\\d{4,7}|[a-z0-9][a-z0-9_\\-]*)$"
+          }
+        },
+        "fact": {
+          "description": "检查卡（pre/post）回答的图 LEAF 事实键（snake_case，例：hacl / exec_code / ttp_exists / network_service_info / leak_account / path_exists）；动作类不得声明",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_]*$"
+          }
+        },
+        "aliases": {
+          "description": "检索别名：同一个对象的其他说法（例：scm / ms17-010 / psexec）。命中按弱票计分（1 分/条，最多 3 条），同时是弱召回通道。不得重复本卡 service / vuln / case 的精确值（会双计）；别名只排序，不能救活不兼容的卡",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64
+          }
+        },
+        "case": {
+          "description": "图词汇精确键：本技能服务的 rule case id（行动类可省略：有 attack_id 的图节点按 technique+service 召回；支撑类须与 provides / fact 至少声明一个，否则检索不可达）",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_]*$"
+          }
+        },
+        "path": {
+          "type": "string",
+        "pattern": "^skills/(?:(?:pre|post|exploit|session)\\.[a-z][a-z0-9_]*|[a-z0-9]+(?:-[a-z0-9]+)*)/$"
+        },
+        "provides": {
+          "description": "运行现场需求键：这张技能能给运行补上什么（reachability/session/transfer/credential）。支撑类必须声明 case / provides / fact 之一，否则检索不可达；动作类不得声明",
+          "type": "array",
+          "items": {
+            "enum": [
+              "reachability",
+              "session",
+              "transfer",
+              "credential"
+            ]
+          }
+        }
+      }
+    },
+    "chain": {
+      "type": "object",
+      "required": [
+        "id",
+        "need",
+        "segments"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.\\-]*$"
+        },
+        "need": {
+          "enum": [
+            "reachability",
+            "session",
+            "transfer",
+            "credential"
+          ]
+        },
+        "case": {
+          "description": "可选：本链服务的图 case（与该 case 的节点方法重合时，节点执行可直接走链）",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9_]*$"
+        },
+        "note": {
+          "type": "string"
+        },
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "role",
+              "skill"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "role": {
+                "description": "action: the segment that proves the primitive; session: the segment that turns it into a registered capability (bridge run265)",
+                "enum": [
+                  "dump",
+                  "exfil",
+                  "parse",
+                  "action",
+                  "session"
+                ]
+              },
+              "skill": {
+                "type": "string",
+                "pattern": "^(?:pre|post|exploit|session)\\.[a-z][a-z0-9_]*$"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

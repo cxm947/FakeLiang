@@ -1,0 +1,36 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "session_ref",
+        "type": "session_ref",
+        "from": "runtime",
+        "desc": "要迁移托管且仍在应答的会话/通道；端点按其会话 id 送达命令。"
+      }
+    ],
+    "optional": [
+      {
+        "name": "lhost",
+        "type": "host_ref",
+        "from": "runtime",
+        "desc": "需要重建传输时使用的回连地址，由执行端确认；用于通道掉线后的兜底。"
+      },
+      {
+        "name": "lport",
+        "type": "port",
+        "from": "config",
+        "desc": "回连端口；避开 msfrpcd 上已有 handler 占用的端口"
+      }
+    ]
+  },
+  "output": {
+    "evidence": [
+      "call_id",
+      "session_host",
+      "session_host_pid",
+      "session_identity",
+      "msf_session_id"
+    ]
+  },
+  "judge": "target_echo_present"
+}

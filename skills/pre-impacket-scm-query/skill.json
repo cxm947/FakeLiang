@@ -1,0 +1,46 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "target_host",
+        "type": "host_ref",
+        "from": "graph"
+      },
+      {
+        "name": "port",
+        "type": "port",
+        "from": "graph"
+      },
+      {
+        "name": "expected_service",
+        "type": "string",
+        "from": "graph"
+      },
+      {
+        "name": "credential_ref",
+        "type": "cred_ref",
+        "from": "graph"
+      },
+      {
+        "name": "check_shape",
+        "type": "string",
+        "from": "graph",
+        "const": "windows_service_rpc"
+      }
+    ],
+    "optional": [
+      {
+        "name": "domain",
+        "type": "string",
+        "from": "runtime"
+      },
+      {
+        "name": "credential_candidates",
+        "type": "credential_candidates",
+        "from": "runtime",
+        "optional": true
+      }
+    ]
+  },
+  "judge": "scm_endpoint_matches"
+}

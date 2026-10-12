@@ -1,0 +1,19 @@
+1,"execCode(host_a,user)","OR",0
+2,"RULE 2 (Valid Accounts - T1078)","AND",0
+3,"leakAccount(synthetic_user,host_a,user)","LEAF",1
+2,3,-1
+4,"hacl(internet,host_a,tcp,443)","LEAF",1
+2,4,-1
+5,"attackerLocated(internet)","LEAF",1
+2,5,-1
+1,2,-1
+6,"execCode(host_b,user)","OR",0
+7,"RULE 32 (Exploitation of Remote Services - T1210)","AND",0
+7,1,-1
+8,"hacl(host_a,host_b,tcp,22)","LEAF",1
+7,8,-1
+9,"networkServiceInfo(host_b,synthetic_service,tcp,22,user)","LEAF",1
+7,9,-1
+10,"ttpExists(host_b,synthetic_service,remoteExploit,remoteServicesExploitation,lateralMovement)","LEAF",1
+7,10,-1
+6,7,-1

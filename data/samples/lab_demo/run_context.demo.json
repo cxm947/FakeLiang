@@ -1,0 +1,19 @@
+{
+  "account_aliases": {},
+  "credentials": {
+    "synthetic_user": {
+      "user": "synthetic_user",
+      "domain": "LAB",
+      "secret": "PLACEHOLDER",
+      "mode": "password",
+      "role": "initial_account",
+      "source": "operator input",
+      "provenance": "synthetic fixture for data/samples/lab_demo - replace the value and keep this field pointing at where the real material came from; never invent it"
+    }
+  },
+  "host_platforms": {
+    "host_a": "windows",
+    "host_b": "posix"
+  },
+  "allowed_object_scope": "agv:"
+}

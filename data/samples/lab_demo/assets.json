@@ -1,0 +1,30 @@
+{
+  "scenario": "lab_demo",
+  "status": "synthetic_fixture",
+  "sources": {
+    "graph": "data/samples/host_demo/demo.txt (fictional two-host export)"
+  },
+  "hosts": {
+    "internet": {
+      "kind": "attacker",
+      "ips": ["192.0.2.9"]
+    },
+    "host_a": {
+      "kind": "vm",
+      "ips": ["192.0.2.10"]
+    },
+    "host_b": {
+      "kind": "vm",
+      "ips": ["192.0.2.11"]
+    }
+  },
+  "endpoints": {
+    "synthetic_service": {
+      "execution_host": "host_b",
+      "graph_protocol": "tcp",
+      "graph_port": 22,
+      "connect_ip": "192.0.2.11",
+      "connect_port": 22
+    }
+  }
+}

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Local CI on commit (D56). Install once: python scripts/install_git_hooks.py
+# Deliberate bypass: git commit --no-verify
+PY=$(git config --get ci.python 2>/dev/null || true)
+if [ -z "$PY" ]; then
+  PY=python
+fi
+exec "$PY" scripts/ci.py --label pre-commit

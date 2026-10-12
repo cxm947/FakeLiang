@@ -1,0 +1,1719 @@
+{
+  "schema_version": "1.2.0",
+  "final_goal": [
+    "43",
+    "47"
+  ],
+  "inputs": {
+    "graph_source": {
+      "file": "data/inputs/hongri7/Hongri7_v2.txt",
+      "format": "mulval_txt",
+      "sha256": "732f7995d9b9a4b30513e36a3dd156130970231abaa0cfa0abd9595c7c287a4b"
+    },
+    "host_map": {
+      "source": {
+        "file": "data/inputs/hongri7/host_ip_map.csv",
+        "format": "csv",
+        "sha256": "7b72c2c59e09747e099e4616d07f2580a0bb1c90b9a7c1492f241a36d5899be4"
+      },
+      "records": 9
+    },
+    "asset_profile": {
+      "file": "data/inputs/hongri7/assets.json",
+      "format": "json",
+      "sha256": "a05c6035a087accd9cd0a94aec32c8b96da4333c3df40d633a5f98afc22b7837",
+      "usage": "optional deployment profile merged into hosts[] (multi-NIC / container IPs)"
+    }
+  },
+  "source_graph": {
+    "format": "mulval_txt",
+    "graph_hash": "8fee1c2eb87300a79f05f36200769cfd8cdae6ac791220398f6cef57da8b49b6",
+    "nodes": [
+      {
+        "id": "1",
+        "description": "disableFirewall(dc)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "2",
+        "description": "RULE 12 (Impair Defenses - Disable or Modify Tools - T1562.001)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "3",
+        "description": "hasAccount(dc,domain_administrator,lab_domain_credential,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "4",
+        "description": "getAccount(pc1,domain_administrator,lab_domain_credential,system)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "5",
+        "description": "RULE 6 (OS Credential Dumping LSASS Memory - T1003.001)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "6",
+        "description": "execCode(pc1,system)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "7",
+        "description": "RULE 21 (Command and Scripting Interpreter - T1623)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "8",
+        "description": "hacl(web1,pc1,http,8080)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "9",
+        "description": "ttpExists(pc1,tongda_oa_v11_3,remoteExploit,commandInterpreterExploit,execution)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "10",
+        "description": "networkServiceInfo(pc1,tongda_oa_v11_3,http,8080,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "11",
+        "description": "execCode(web1,root)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "12",
+        "description": "RULE 4 (Exploit Public-Facing Application - T1190)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "13",
+        "description": "netAccess(web1,tcp,6379)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "14",
+        "description": "RULE 1 (Direct Network Access)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "15",
+        "description": "hacl(attacker,web1,tcp,6379)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "16",
+        "description": "attackerLocated(attacker)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "17",
+        "description": "networkServiceInfo(web1,redis,tcp,6379,root)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "18",
+        "description": "ttpExists(web1,redis_unauth_key_write,redis,remoteExploit,publicApplicationExploit,initialAccess)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "19",
+        "description": "RULE 21 (Command and Scripting Interpreter - T1623)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "20",
+        "description": "hacl(web2,pc1,http,8080)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "21",
+        "description": "execCode(web2,root)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "22",
+        "description": "RULE 20 (Exploitation for Privilege Escalation - T1068)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "23",
+        "description": "isDocker(web2,web2_docker)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "24",
+        "description": "ttpExists(web2,privileged_container,local,escapetoHost,privilegeEscalation)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "25",
+        "description": "execCode(web2_docker,root)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "26",
+        "description": "RULE 19 (Hijack Execution Flow Path Interception - T1574.007)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "27",
+        "description": "execCode(web2_docker,www_data)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "28",
+        "description": "RULE 4 (Exploit Public-Facing Application - T1190)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "29",
+        "description": "netAccess(web2_docker,http,81)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "30",
+        "description": "RULE 1 (Direct Network Access)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "31",
+        "description": "hacl(attacker,web2_docker,http,81)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "32",
+        "description": "networkServiceInfo(web2_docker,laravel,http,81,www_data)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "33",
+        "description": "ttpExists(web2_docker,'CVE-2021-3129',laravel,remoteExploit,publicApplicationExploit,initialAccess)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "34",
+        "description": "pathExists(web2_docker,'/tmp',write,root)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "35",
+        "description": "ttpExists(web2_docker,suid_path_helper,local,pathHijack,privilegeEscalation)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "36",
+        "description": "hasAccount(pc1,domain_administrator,lab_domain_credential,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "37",
+        "description": "networkServiceInfo(pc1,lsass,local,none,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "38",
+        "description": "ttpExists(pc1,lsass,local,domainCredentialDumping,credentialAccess)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "39",
+        "description": "hacl(pc1,dc,tcp,445)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "40",
+        "description": "networkServiceInfo(dc,scm,tcp,445,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "41",
+        "description": "ttpExists(dc,scm,remoteClient,remoteDisableDefenses,defenseEvasion)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "42",
+        "description": "isFirewall(dc,exit)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "43",
+        "description": "execCode(dc,system)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "44",
+        "description": "RULE 32 (Remote Services - Windows Credential Remote Execution - T1021)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "45",
+        "description": "networkServiceInfo(dc,smb,tcp,445,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "46",
+        "description": "ttpExists(dc,smb,remoteClient,windowsCredentialRemoteExecution,lateralMovement)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "47",
+        "description": "execCode(pc2,system)",
+        "type": "OR",
+        "metric": "0"
+      },
+      {
+        "id": "48",
+        "description": "RULE 30 (Remote Services - Windows Credential Remote Execution - T1021)",
+        "type": "AND",
+        "metric": "0"
+      },
+      {
+        "id": "49",
+        "description": "hasAccount(pc2,domain_administrator,lab_domain_credential,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "50",
+        "description": "isFirewall(pc2,flase)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "51",
+        "description": "hacl(pc1,pc2,tcp,445)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "52",
+        "description": "networkServiceInfo(pc2,smb,tcp,445,system)",
+        "type": "LEAF",
+        "metric": "1"
+      },
+      {
+        "id": "53",
+        "description": "ttpExists(pc2,smb,remoteClient,windowsCredentialRemoteExecution,lateralMovement)",
+        "type": "LEAF",
+        "metric": "1"
+      }
+    ],
+    "edges": [
+      {
+        "source": "1",
+        "target": "44",
+        "weight": "-1"
+      },
+      {
+        "source": "2",
+        "target": "1",
+        "weight": "-1"
+      },
+      {
+        "source": "3",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "3",
+        "target": "44",
+        "weight": "-1"
+      },
+      {
+        "source": "4",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "4",
+        "target": "44",
+        "weight": "-1"
+      },
+      {
+        "source": "4",
+        "target": "48",
+        "weight": "-1"
+      },
+      {
+        "source": "5",
+        "target": "4",
+        "weight": "-1"
+      },
+      {
+        "source": "6",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "6",
+        "target": "5",
+        "weight": "-1"
+      },
+      {
+        "source": "6",
+        "target": "44",
+        "weight": "-1"
+      },
+      {
+        "source": "6",
+        "target": "48",
+        "weight": "-1"
+      },
+      {
+        "source": "7",
+        "target": "6",
+        "weight": "-1"
+      },
+      {
+        "source": "8",
+        "target": "7",
+        "weight": "-1"
+      },
+      {
+        "source": "9",
+        "target": "7",
+        "weight": "-1"
+      },
+      {
+        "source": "9",
+        "target": "19",
+        "weight": "-1"
+      },
+      {
+        "source": "10",
+        "target": "7",
+        "weight": "-1"
+      },
+      {
+        "source": "10",
+        "target": "19",
+        "weight": "-1"
+      },
+      {
+        "source": "11",
+        "target": "7",
+        "weight": "-1"
+      },
+      {
+        "source": "12",
+        "target": "11",
+        "weight": "-1"
+      },
+      {
+        "source": "13",
+        "target": "12",
+        "weight": "-1"
+      },
+      {
+        "source": "14",
+        "target": "13",
+        "weight": "-1"
+      },
+      {
+        "source": "15",
+        "target": "14",
+        "weight": "-1"
+      },
+      {
+        "source": "16",
+        "target": "14",
+        "weight": "-1"
+      },
+      {
+        "source": "16",
+        "target": "30",
+        "weight": "-1"
+      },
+      {
+        "source": "17",
+        "target": "12",
+        "weight": "-1"
+      },
+      {
+        "source": "18",
+        "target": "12",
+        "weight": "-1"
+      },
+      {
+        "source": "19",
+        "target": "6",
+        "weight": "-1"
+      },
+      {
+        "source": "20",
+        "target": "19",
+        "weight": "-1"
+      },
+      {
+        "source": "21",
+        "target": "19",
+        "weight": "-1"
+      },
+      {
+        "source": "22",
+        "target": "21",
+        "weight": "-1"
+      },
+      {
+        "source": "23",
+        "target": "22",
+        "weight": "-1"
+      },
+      {
+        "source": "24",
+        "target": "22",
+        "weight": "-1"
+      },
+      {
+        "source": "25",
+        "target": "22",
+        "weight": "-1"
+      },
+      {
+        "source": "26",
+        "target": "25",
+        "weight": "-1"
+      },
+      {
+        "source": "27",
+        "target": "26",
+        "weight": "-1"
+      },
+      {
+        "source": "28",
+        "target": "27",
+        "weight": "-1"
+      },
+      {
+        "source": "29",
+        "target": "28",
+        "weight": "-1"
+      },
+      {
+        "source": "30",
+        "target": "29",
+        "weight": "-1"
+      },
+      {
+        "source": "31",
+        "target": "30",
+        "weight": "-1"
+      },
+      {
+        "source": "32",
+        "target": "28",
+        "weight": "-1"
+      },
+      {
+        "source": "33",
+        "target": "28",
+        "weight": "-1"
+      },
+      {
+        "source": "34",
+        "target": "26",
+        "weight": "-1"
+      },
+      {
+        "source": "35",
+        "target": "26",
+        "weight": "-1"
+      },
+      {
+        "source": "36",
+        "target": "5",
+        "weight": "-1"
+      },
+      {
+        "source": "37",
+        "target": "5",
+        "weight": "-1"
+      },
+      {
+        "source": "38",
+        "target": "5",
+        "weight": "-1"
+      },
+      {
+        "source": "39",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "39",
+        "target": "44",
+        "weight": "-1"
+      },
+      {
+        "source": "40",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "41",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "42",
+        "target": "2",
+        "weight": "-1"
+      },
+      {
+        "source": "44",
+        "target": "43",
+        "weight": "-1"
+      },
+      {
+        "source": "45",
+        "target": "44",
+        "weight": "-1"
+      },
+      {
+        "source": "46",
+        "target": "44",
+        "weight": "-1"
+      },
+      {
+        "source": "48",
+        "target": "47",
+        "weight": "-1"
+      },
+      {
+        "source": "49",
+        "target": "48",
+        "weight": "-1"
+      },
+      {
+        "source": "50",
+        "target": "48",
+        "weight": "-1"
+      },
+      {
+        "source": "51",
+        "target": "48",
+        "weight": "-1"
+      },
+      {
+        "source": "52",
+        "target": "48",
+        "weight": "-1"
+      },
+      {
+        "source": "53",
+        "target": "48",
+        "weight": "-1"
+      }
+    ]
+  },
+  "hosts": [
+    {
+      "host": "attacker",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.1.102"
+      ]
+    },
+    {
+      "host": "control",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.52.128"
+      ]
+    },
+    {
+      "host": "dc",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.93.30"
+      ]
+    },
+    {
+      "host": "kali",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.52.128"
+      ]
+    },
+    {
+      "host": "pc1",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.52.30",
+        "192.168.93.20"
+      ]
+    },
+    {
+      "host": "pc2",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.93.40"
+      ]
+    },
+    {
+      "host": "ubuntu",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.52.10"
+      ]
+    },
+    {
+      "host": "web1",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.1.103",
+        "192.168.52.10"
+      ]
+    },
+    {
+      "host": "web2",
+      "aliases": [],
+      "kind": "host",
+      "parent": null,
+      "ips": [
+        "192.168.52.20",
+        "192.168.93.10"
+      ]
+    },
+    {
+      "host": "web2_docker",
+      "aliases": [],
+      "kind": "container",
+      "parent": "web2",
+      "ips": [
+        "172.17.0.2",
+        "192.168.52.10"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "2",
+      "type": "AND",
+      "description": "RULE 12 (Impair Defenses - Disable or Modify Tools - T1562.001)",
+      "rule_desc": "Impair Defenses - Disable or Modify Tools - T1562.001",
+      "attack_id": "T1562.001",
+      "source_host": "pc1",
+      "target_host": "dc",
+      "service": "scm",
+      "protocol": "tcp",
+      "port": "445",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "3",
+          "type": "LEAF",
+          "description": "hasAccount(dc,domain_administrator,lab_domain_credential,system)",
+          "validation": {
+            "kind": "credential",
+            "fields": {
+              "host": {
+                "term": "dc"
+              },
+              "user": "domain_administrator",
+              "secret": "lab_domain_credential",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "4",
+          "type": "OR",
+          "description": "getAccount(pc1,domain_administrator,lab_domain_credential,system)",
+          "produced_by": [
+            "5"
+          ]
+        },
+        {
+          "ref": "6",
+          "type": "OR",
+          "description": "execCode(pc1,system)",
+          "produced_by": [
+            "7",
+            "19"
+          ]
+        },
+        {
+          "ref": "39",
+          "type": "LEAF",
+          "description": "hacl(pc1,dc,tcp,445)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "pc1"
+              },
+              "to": {
+                "term": "dc"
+              },
+              "protocol": "tcp",
+              "port": "445"
+            }
+          }
+        },
+        {
+          "ref": "40",
+          "type": "LEAF",
+          "description": "networkServiceInfo(dc,scm,tcp,445,system)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "dc"
+              },
+              "service": "scm",
+              "protocol": "tcp",
+              "port": "445",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "41",
+          "type": "LEAF",
+          "description": "ttpExists(dc,scm,remoteClient,remoteDisableDefenses,defenseEvasion)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "dc"
+              },
+              "object": null,
+              "software": "scm",
+              "side": "remoteClient",
+              "capability": "remoteDisableDefenses",
+              "tactic": "defenseEvasion"
+            }
+          }
+        },
+        {
+          "ref": "42",
+          "type": "LEAF",
+          "description": "isFirewall(dc,exit)",
+          "validation": {
+            "kind": "environment_fact",
+            "fields": {
+              "predicate": "isFirewall",
+              "arguments": [
+                "dc",
+                "exit"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "type": "AND",
+      "description": "RULE 6 (OS Credential Dumping LSASS Memory - T1003.001)",
+      "rule_desc": "OS Credential Dumping LSASS Memory - T1003.001",
+      "attack_id": "T1003.001",
+      "source_host": "pc1",
+      "target_host": "pc1",
+      "service": "lsass",
+      "protocol": "local",
+      "port": "none",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "6",
+          "type": "OR",
+          "description": "execCode(pc1,system)",
+          "produced_by": [
+            "7",
+            "19"
+          ]
+        },
+        {
+          "ref": "36",
+          "type": "LEAF",
+          "description": "hasAccount(pc1,domain_administrator,lab_domain_credential,system)",
+          "validation": {
+            "kind": "credential",
+            "fields": {
+              "host": {
+                "term": "pc1"
+              },
+              "user": "domain_administrator",
+              "secret": "lab_domain_credential",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "37",
+          "type": "LEAF",
+          "description": "networkServiceInfo(pc1,lsass,local,none,system)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "pc1"
+              },
+              "service": "lsass",
+              "protocol": "local",
+              "port": "none",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "38",
+          "type": "LEAF",
+          "description": "ttpExists(pc1,lsass,local,domainCredentialDumping,credentialAccess)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "pc1"
+              },
+              "object": null,
+              "software": "lsass",
+              "side": "local",
+              "capability": "domainCredentialDumping",
+              "tactic": "credentialAccess"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "type": "AND",
+      "description": "RULE 21 (Command and Scripting Interpreter - T1623)",
+      "rule_desc": "Command and Scripting Interpreter - T1623",
+      "attack_id": "T1623",
+      "source_host": "web1",
+      "target_host": "pc1",
+      "service": "tongda_oa_v11_3",
+      "protocol": "http",
+      "port": "8080",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "8",
+          "type": "LEAF",
+          "description": "hacl(web1,pc1,http,8080)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "web1"
+              },
+              "to": {
+                "term": "pc1"
+              },
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "ref": "9",
+          "type": "LEAF",
+          "description": "ttpExists(pc1,tongda_oa_v11_3,remoteExploit,commandInterpreterExploit,execution)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "pc1"
+              },
+              "object": null,
+              "software": "tongda_oa_v11_3",
+              "side": "remoteExploit",
+              "capability": "commandInterpreterExploit",
+              "tactic": "execution"
+            }
+          }
+        },
+        {
+          "ref": "10",
+          "type": "LEAF",
+          "description": "networkServiceInfo(pc1,tongda_oa_v11_3,http,8080,system)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "pc1"
+              },
+              "service": "tongda_oa_v11_3",
+              "protocol": "http",
+              "port": "8080",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "11",
+          "type": "OR",
+          "description": "execCode(web1,root)",
+          "produced_by": [
+            "12"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "type": "AND",
+      "description": "RULE 4 (Exploit Public-Facing Application - T1190)",
+      "rule_desc": "Exploit Public-Facing Application - T1190",
+      "attack_id": "T1190",
+      "source_host": null,
+      "target_host": "web1",
+      "service": "redis",
+      "protocol": "tcp",
+      "port": "6379",
+      "vulnerability": "redis_unauth_key_write",
+      "dependencies": [
+        {
+          "ref": "13",
+          "type": "OR",
+          "description": "netAccess(web1,tcp,6379)",
+          "produced_by": [
+            "14"
+          ]
+        },
+        {
+          "ref": "17",
+          "type": "LEAF",
+          "description": "networkServiceInfo(web1,redis,tcp,6379,root)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "web1"
+              },
+              "service": "redis",
+              "protocol": "tcp",
+              "port": "6379",
+              "privilege": "root"
+            }
+          }
+        },
+        {
+          "ref": "18",
+          "type": "LEAF",
+          "description": "ttpExists(web1,redis_unauth_key_write,redis,remoteExploit,publicApplicationExploit,initialAccess)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "web1"
+              },
+              "object": "redis_unauth_key_write",
+              "software": "redis",
+              "side": "remoteExploit",
+              "capability": "publicApplicationExploit",
+              "tactic": "initialAccess"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "type": "AND",
+      "description": "RULE 1 (Direct Network Access)",
+      "rule_desc": "Direct Network Access",
+      "attack_id": null,
+      "source_host": "attacker",
+      "target_host": "web1",
+      "service": null,
+      "protocol": "tcp",
+      "port": "6379",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "15",
+          "type": "LEAF",
+          "description": "hacl(attacker,web1,tcp,6379)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "attacker"
+              },
+              "to": {
+                "term": "web1"
+              },
+              "protocol": "tcp",
+              "port": "6379"
+            }
+          }
+        },
+        {
+          "ref": "16",
+          "type": "LEAF",
+          "description": "attackerLocated(attacker)",
+          "validation": {
+            "kind": "environment_fact",
+            "fields": {
+              "predicate": "attackerLocated",
+              "arguments": [
+                "attacker"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "19",
+      "type": "AND",
+      "description": "RULE 21 (Command and Scripting Interpreter - T1623)",
+      "rule_desc": "Command and Scripting Interpreter - T1623",
+      "attack_id": "T1623",
+      "source_host": "web2",
+      "target_host": "pc1",
+      "service": "tongda_oa_v11_3",
+      "protocol": "http",
+      "port": "8080",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "9",
+          "type": "LEAF",
+          "description": "ttpExists(pc1,tongda_oa_v11_3,remoteExploit,commandInterpreterExploit,execution)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "pc1"
+              },
+              "object": null,
+              "software": "tongda_oa_v11_3",
+              "side": "remoteExploit",
+              "capability": "commandInterpreterExploit",
+              "tactic": "execution"
+            }
+          }
+        },
+        {
+          "ref": "10",
+          "type": "LEAF",
+          "description": "networkServiceInfo(pc1,tongda_oa_v11_3,http,8080,system)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "pc1"
+              },
+              "service": "tongda_oa_v11_3",
+              "protocol": "http",
+              "port": "8080",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "20",
+          "type": "LEAF",
+          "description": "hacl(web2,pc1,http,8080)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "web2"
+              },
+              "to": {
+                "term": "pc1"
+              },
+              "protocol": "http",
+              "port": "8080"
+            }
+          }
+        },
+        {
+          "ref": "21",
+          "type": "OR",
+          "description": "execCode(web2,root)",
+          "produced_by": [
+            "22"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22",
+      "type": "AND",
+      "description": "RULE 20 (Exploitation for Privilege Escalation - T1068)",
+      "rule_desc": "Exploitation for Privilege Escalation - T1068",
+      "attack_id": "T1068",
+      "source_host": "web2_docker",
+      "target_host": "web2",
+      "service": "privileged_container",
+      "protocol": null,
+      "port": null,
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "23",
+          "type": "LEAF",
+          "description": "isDocker(web2,web2_docker)",
+          "validation": {
+            "kind": "environment_fact",
+            "fields": {
+              "predicate": "isDocker",
+              "arguments": [
+                "web2",
+                "web2_docker"
+              ]
+            }
+          }
+        },
+        {
+          "ref": "24",
+          "type": "LEAF",
+          "description": "ttpExists(web2,privileged_container,local,escapetoHost,privilegeEscalation)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "web2"
+              },
+              "object": null,
+              "software": "privileged_container",
+              "side": "local",
+              "capability": "escapetoHost",
+              "tactic": "privilegeEscalation"
+            }
+          }
+        },
+        {
+          "ref": "25",
+          "type": "OR",
+          "description": "execCode(web2_docker,root)",
+          "produced_by": [
+            "26"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "26",
+      "type": "AND",
+      "description": "RULE 19 (Hijack Execution Flow Path Interception - T1574.007)",
+      "rule_desc": "Hijack Execution Flow Path Interception - T1574.007",
+      "attack_id": "T1574.007",
+      "source_host": "web2_docker",
+      "target_host": "web2_docker",
+      "service": "suid_path_helper",
+      "protocol": null,
+      "port": null,
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "27",
+          "type": "OR",
+          "description": "execCode(web2_docker,www_data)",
+          "produced_by": [
+            "28"
+          ]
+        },
+        {
+          "ref": "34",
+          "type": "LEAF",
+          "description": "pathExists(web2_docker,'/tmp',write,root)",
+          "validation": {
+            "kind": "environment_fact",
+            "fields": {
+              "predicate": "pathExists",
+              "arguments": [
+                "web2_docker",
+                "/tmp",
+                "write",
+                "root"
+              ]
+            }
+          }
+        },
+        {
+          "ref": "35",
+          "type": "LEAF",
+          "description": "ttpExists(web2_docker,suid_path_helper,local,pathHijack,privilegeEscalation)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "web2_docker"
+              },
+              "object": null,
+              "software": "suid_path_helper",
+              "side": "local",
+              "capability": "pathHijack",
+              "tactic": "privilegeEscalation"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "28",
+      "type": "AND",
+      "description": "RULE 4 (Exploit Public-Facing Application - T1190)",
+      "rule_desc": "Exploit Public-Facing Application - T1190",
+      "attack_id": "T1190",
+      "source_host": null,
+      "target_host": "web2_docker",
+      "service": "laravel",
+      "protocol": "http",
+      "port": "81",
+      "vulnerability": "CVE-2021-3129",
+      "dependencies": [
+        {
+          "ref": "29",
+          "type": "OR",
+          "description": "netAccess(web2_docker,http,81)",
+          "produced_by": [
+            "30"
+          ]
+        },
+        {
+          "ref": "32",
+          "type": "LEAF",
+          "description": "networkServiceInfo(web2_docker,laravel,http,81,www_data)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "web2_docker"
+              },
+              "service": "laravel",
+              "protocol": "http",
+              "port": "81",
+              "privilege": "www_data"
+            }
+          }
+        },
+        {
+          "ref": "33",
+          "type": "LEAF",
+          "description": "ttpExists(web2_docker,'CVE-2021-3129',laravel,remoteExploit,publicApplicationExploit,initialAccess)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "web2_docker"
+              },
+              "object": "CVE-2021-3129",
+              "software": "laravel",
+              "side": "remoteExploit",
+              "capability": "publicApplicationExploit",
+              "tactic": "initialAccess"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "30",
+      "type": "AND",
+      "description": "RULE 1 (Direct Network Access)",
+      "rule_desc": "Direct Network Access",
+      "attack_id": null,
+      "source_host": "attacker",
+      "target_host": "web2_docker",
+      "service": null,
+      "protocol": "http",
+      "port": "81",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "16",
+          "type": "LEAF",
+          "description": "attackerLocated(attacker)",
+          "validation": {
+            "kind": "environment_fact",
+            "fields": {
+              "predicate": "attackerLocated",
+              "arguments": [
+                "attacker"
+              ]
+            }
+          }
+        },
+        {
+          "ref": "31",
+          "type": "LEAF",
+          "description": "hacl(attacker,web2_docker,http,81)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "attacker"
+              },
+              "to": {
+                "term": "web2_docker"
+              },
+              "protocol": "http",
+              "port": "81"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "43",
+      "type": "OR",
+      "description": "execCode(dc,system)",
+      "rule_desc": null,
+      "attack_id": null,
+      "source_host": null,
+      "target_host": "dc",
+      "service": null,
+      "protocol": null,
+      "port": null,
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "44",
+          "type": "AND",
+          "description": "RULE 32 (Remote Services - Windows Credential Remote Execution - T1021)"
+        }
+      ]
+    },
+    {
+      "id": "44",
+      "type": "AND",
+      "description": "RULE 32 (Remote Services - Windows Credential Remote Execution - T1021)",
+      "rule_desc": "Remote Services - Windows Credential Remote Execution - T1021",
+      "attack_id": "T1021",
+      "source_host": "pc1",
+      "target_host": "dc",
+      "service": "smb",
+      "protocol": "tcp",
+      "port": "445",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "1",
+          "type": "OR",
+          "description": "disableFirewall(dc)",
+          "produced_by": [
+            "2"
+          ]
+        },
+        {
+          "ref": "3",
+          "type": "LEAF",
+          "description": "hasAccount(dc,domain_administrator,lab_domain_credential,system)",
+          "validation": {
+            "kind": "credential",
+            "fields": {
+              "host": {
+                "term": "dc"
+              },
+              "user": "domain_administrator",
+              "secret": "lab_domain_credential",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "4",
+          "type": "OR",
+          "description": "getAccount(pc1,domain_administrator,lab_domain_credential,system)",
+          "produced_by": [
+            "5"
+          ]
+        },
+        {
+          "ref": "6",
+          "type": "OR",
+          "description": "execCode(pc1,system)",
+          "produced_by": [
+            "7",
+            "19"
+          ]
+        },
+        {
+          "ref": "39",
+          "type": "LEAF",
+          "description": "hacl(pc1,dc,tcp,445)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "pc1"
+              },
+              "to": {
+                "term": "dc"
+              },
+              "protocol": "tcp",
+              "port": "445"
+            }
+          }
+        },
+        {
+          "ref": "45",
+          "type": "LEAF",
+          "description": "networkServiceInfo(dc,smb,tcp,445,system)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "dc"
+              },
+              "service": "smb",
+              "protocol": "tcp",
+              "port": "445",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "46",
+          "type": "LEAF",
+          "description": "ttpExists(dc,smb,remoteClient,windowsCredentialRemoteExecution,lateralMovement)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "dc"
+              },
+              "object": null,
+              "software": "smb",
+              "side": "remoteClient",
+              "capability": "windowsCredentialRemoteExecution",
+              "tactic": "lateralMovement"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "47",
+      "type": "OR",
+      "description": "execCode(pc2,system)",
+      "rule_desc": null,
+      "attack_id": null,
+      "source_host": null,
+      "target_host": "pc2",
+      "service": null,
+      "protocol": null,
+      "port": null,
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "48",
+          "type": "AND",
+          "description": "RULE 30 (Remote Services - Windows Credential Remote Execution - T1021)"
+        }
+      ]
+    },
+    {
+      "id": "48",
+      "type": "AND",
+      "description": "RULE 30 (Remote Services - Windows Credential Remote Execution - T1021)",
+      "rule_desc": "Remote Services - Windows Credential Remote Execution - T1021",
+      "attack_id": "T1021",
+      "source_host": "pc1",
+      "target_host": "pc2",
+      "service": "smb",
+      "protocol": "tcp",
+      "port": "445",
+      "vulnerability": null,
+      "dependencies": [
+        {
+          "ref": "4",
+          "type": "OR",
+          "description": "getAccount(pc1,domain_administrator,lab_domain_credential,system)",
+          "produced_by": [
+            "5"
+          ]
+        },
+        {
+          "ref": "6",
+          "type": "OR",
+          "description": "execCode(pc1,system)",
+          "produced_by": [
+            "7",
+            "19"
+          ]
+        },
+        {
+          "ref": "49",
+          "type": "LEAF",
+          "description": "hasAccount(pc2,domain_administrator,lab_domain_credential,system)",
+          "validation": {
+            "kind": "credential",
+            "fields": {
+              "host": {
+                "term": "pc2"
+              },
+              "user": "domain_administrator",
+              "secret": "lab_domain_credential",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "50",
+          "type": "LEAF",
+          "description": "isFirewall(pc2,flase)",
+          "validation": {
+            "kind": "environment_fact",
+            "fields": {
+              "predicate": "isFirewall",
+              "arguments": [
+                "pc2",
+                "flase"
+              ]
+            }
+          }
+        },
+        {
+          "ref": "51",
+          "type": "LEAF",
+          "description": "hacl(pc1,pc2,tcp,445)",
+          "validation": {
+            "kind": "network_reachability",
+            "fields": {
+              "from": {
+                "term": "pc1"
+              },
+              "to": {
+                "term": "pc2"
+              },
+              "protocol": "tcp",
+              "port": "445"
+            }
+          }
+        },
+        {
+          "ref": "52",
+          "type": "LEAF",
+          "description": "networkServiceInfo(pc2,smb,tcp,445,system)",
+          "validation": {
+            "kind": "service_exposure",
+            "fields": {
+              "host": {
+                "term": "pc2"
+              },
+              "service": "smb",
+              "protocol": "tcp",
+              "port": "445",
+              "privilege": "system"
+            }
+          }
+        },
+        {
+          "ref": "53",
+          "type": "LEAF",
+          "description": "ttpExists(pc2,smb,remoteClient,windowsCredentialRemoteExecution,lateralMovement)",
+          "validation": {
+            "kind": "capability",
+            "fields": {
+              "host": {
+                "term": "pc2"
+              },
+              "object": null,
+              "software": "smb",
+              "side": "remoteClient",
+              "capability": "windowsCredentialRemoteExecution",
+              "tactic": "lateralMovement"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "non_transport_port_token",
+      "node_ref": "5",
+      "severity": "info"
+    }
+  ],
+  "summary": {
+    "input_nodes": 53,
+    "input_edges": 61,
+    "and_nodes": 12,
+    "terminal_or_nodes": 2,
+    "output_nodes": 14,
+    "hosts": 10,
+    "ips": 14,
+    "dependency_entries": 51,
+    "dependency_types": {
+      "LEAF": 35,
+      "OR": 14,
+      "AND": 2
+    },
+    "validation_by_kind": {
+      "capability": 10,
+      "credential": 4,
+      "environment_fact": 6,
+      "network_reachability": 7,
+      "service_exposure": 8
+    },
+    "unknown_leaf_validations": 0
+  }
+}

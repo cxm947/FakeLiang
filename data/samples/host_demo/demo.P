@@ -1,0 +1,8 @@
+% Fictional facts used only for offline graph generation and data comparison.
+attackerLocated(internet).
+attackGoal(execCode(_, _)).
+hacl(internet, host_a, tcp, 443).
+leakAccount(synthetic_user, host_a, user).
+hacl(host_a, host_b, tcp, 22).
+networkServiceInfo(host_b, synthetic_service, tcp, 22, user).
+ttpExists(host_b, synthetic_service, remoteExploit, remoteServicesExploitation, lateralMovement).

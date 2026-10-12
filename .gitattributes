@@ -1,0 +1,33 @@
+# 文本文件统一以 LF 存进仓库，也以 LF 驻留工作副本（例外为批处理的 CRLF、archive/** 与包内提示词的原字节）。
+# 目的：索引里的字节与平台无关，脚本/补丁按一种行尾读就够 —— D33 之前仓库里 202 个 LF /
+# 36 个 CRLF / 10 个 mixed，没规则，按行尾取的补丁锚点会莫名其妙失败。
+# 守线：tests/test_project_layout.py（一条编码纪律 + 一条行尾纪律）。
+* text=auto eol=lf
+
+# 归档快照按原样保存：不做行尾转换（也不因此丢掉文本 diff）。
+archive/** -text diff
+
+# 包内提示词保留求值后的原始字节，包括没有末尾换行的文本。
+/src/agents/_model/templates/*.txt -text diff
+/src/agents/planner/templates/*.txt -text diff
+/src/agents/executor/templates/*.txt -text diff
+/src/agents/verifier/templates/*.txt -text diff
+/src/skills/templates/*.txt -text diff
+# The retry prefix retains its original final space as a binary resource.
+/src/agents/verifier/templates/retry_prefix.txt -text -diff
+
+# PowerShell 脚本按 LF 走：PS 5.1 解析 LF 没有问题，非 ASCII 的编码风险由 BOM 守线负责
+# （tests/test_project_layout.py），所以 .ps1 不需要第二套行尾规则。
+*.ps1 text
+
+# 批处理文件反过来留 CRLF：LF 会让标签 / goto 在部分解释器下解析出错。
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# 二进制工件不做任何转换。
+*.pdf binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.xlsx binary
+*.whl binary

@@ -1,0 +1,8 @@
+{
+  "allowed_tools": [
+    "cmd",
+    "tool",
+    "http",
+    "finish"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "tool",
+        "type": "string",
+        "from": "runtime"
+      }
+    ],
+    "optional": [
+      {
+        "name": "session_ref",
+        "type": "session_ref",
+        "from": "runtime"
+      }
+    ]
+  },
+  "output": {
+    "evidence": [
+      "tool",
+      "tool_present",
+      "tool_path",
+      "tool_version"
+    ]
+  },
+  "judge": "tool_present==true"
+}

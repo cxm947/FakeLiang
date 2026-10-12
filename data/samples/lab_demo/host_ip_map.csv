@@ -1,0 +1,5 @@
+# lab_demo 主机对账（虚构）：图上的逻辑名 -> 本次部署地址
+# 用途：判定器 target 闸对账（观测到 host_a 时对齐 192.0.2.10）；入口 scripts/check_inputs.py、--host-map。
+# 注意：这是给运行用的表，**不带表头**（转换工具 scripts/convert_hosts.py 那份才要求 host,ip 表头）。
+host_a,192.0.2.10
+host_b,192.0.2.11

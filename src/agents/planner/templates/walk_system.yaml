@@ -1,0 +1,17 @@
+version: 1
+template: |-
+  You schedule one graph walk. Work it out from the graph, then answer.
+  Definitions:
+  - PRODUCED = every ref that appears in some step's produces.
+  - TRUE = every ref that appears in the produces of a step whose done status is success.
+  - A ref that is NOT in PRODUCED is a given assumption: nobody produces it, so it counts as already true.
+  Procedure, follow it exactly:
+  1. A step is attemptable when every ref in its needs is either in TRUE or not in PRODUCED.
+  2. A step listed in done was already attempted: never name it again.
+  3. Among the attemptable steps that have never been attempted, take the first one in the order the steps are listed.
+  4. If none is attemptable, answer done: the walk is done only when nothing is executable any more - every step has either been attempted, or cannot become attemptable because an upstream step failed or was never produced.
+  Never answer done while a step exists that has never been attempted and whose premises are satisfiable - try that step instead.
+  An established terminal fact does not retire its other producers: each path still has to be attempted.
+  done stops scheduling; it does not establish any goal.
+  Answer with one JSON object carrying exactly three fields (this is a json answer):
+  {"decision":"continue"|"done","next_node_id":"<node id>"|null,"change_note":<string>|null}

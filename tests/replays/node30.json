@@ -1,0 +1,54 @@
+{
+  "node": "30",
+  "card": "pre.nmap_tcp_probe",
+  "run": "walk-89",
+  "task": {
+    "node_id": "30",
+    "goal": "Direct Network Access",
+    "inputs": {
+      "port": "81",
+      "protocol": "tcp",
+      "source_ref": "node:30",
+      "target_host": "192.168.52.10"
+    }
+  },
+  "scope": {
+    "host": "192.168.52.10",
+    "port": 81,
+    "protocol": "tcp",
+    "resources": "whole_endpoint",
+    "vantage": "base"
+  },
+  "actions": [
+    {
+      "tool": "tool",
+      "name": "nmap",
+      "args": [
+        "--unprivileged",
+        "-Pn",
+        "-n",
+        "-sT",
+        "--reason",
+        "-p",
+        "81",
+        "-oX",
+        "-",
+        "192.168.52.10"
+      ]
+    },
+    {
+      "kind": "finish",
+      "claim": "TCP port 81 on 192.168.52.10 is open from the base vantage: nmap connect scan reported state=\"open\" with reason=\"syn-ack\".",
+      "claimed_verdict": "pass",
+      "citations": [
+        {
+          "quote": "<ports><port protocol=\"tcp\" portid=\"81\"><state state=\"open\" reason=\"syn-ack\" reason_ttl=\"0\"/>"
+        }
+      ],
+      "materials": []
+    }
+  ],
+  "receipts": [
+    "agv406cbastart\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE nmaprun>\n<?xml-stylesheet href=\"file:///usr/bin/../share/nmap/nmap.xsl\" type=\"text/xsl\"?>\n<!-- Nmap 7.93 scan initiated Wed Oct  7 06:32:41 2026 as: nmap -&#45;unprivileged -Pn -n -sT -&#45;reason -p 81 -oX - 192.168.52.10 -->\n<nmaprun scanner=\"nmap\" args=\"nmap -&#45;unprivileged -Pn -n -sT -&#45;reason -p 81 -oX - 192.168.52.10\" start=\"1791369161\" startstr=\"Wed Oct  7 06:32:41 2026\" version=\"7.93\" xmloutputversion=\"1.05\">\n<scaninfo type=\"connect\" protocol=\"tcp\" numservices=\"1\" services=\"81\"/>\n<verbose level=\"0\"/>\n<debugging level=\"0\"/>\n<host starttime=\"1791369161\" endtime=\"1791369161\"><status state=\"up\" reason=\"user-set\" reason_ttl=\"0\"/>\n<address addr=\"192.168.52.10\" addrtype=\"ipv4\"/>\n<hostnames>\n</hostnames>\n<ports><port protocol=\"tcp\" portid=\"81\"><state state=\"open\" reason=\"syn-ack\" reason_ttl=\"0\"/><service name=\"hosts2-ns\" method=\"table\" conf=\"3\"/></port>\n</ports>\n<times srtt=\"1422\" rttvar=\"5000\" to=\"100000\"/>\n</host>\n<runstats><finished time=\"1791369161\" timestr=\"Wed Oct  7 06:32:41 2026\" summary=\"Nmap done at Wed Oct  7 06:32:41 2026; 1 IP address (1 host up) scanned in 0.02 seconds\" elapsed=\"0.02\" exit=\"success\"/><hosts up=\"1\" down=\"0\" total=\"1\"/>\n</runstats>\n</nmaprun>\n\nagv406cbaend\n"
+  ]
+}

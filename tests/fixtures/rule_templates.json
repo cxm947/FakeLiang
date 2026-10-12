@@ -1,0 +1,458 @@
+{
+  "source_file": "rules5.P + rules5_v2.P windowsCredentialRemoteExecution extension",
+  "source_sha256": {
+    "rules5.P": "71d703b26423e84e742e8e91670cb31c81e50aaf984951f283430d961300b6a8",
+    "rules5_v2.P": "8dd7b85d25becae581bd55013a508364100ff4359604f25358a3523a73e10d8f"
+  },
+  "fixture_kind": "synthetic contexts grounded from reviewed rule templates; not real MulVAL runs",
+  "templates": [
+    {
+      "case_id": "vector_injection",
+      "rule_desc": "Insecure Operations Leading to Attack Vector Injection",
+      "head": "attackVectorInjection(H, Perm, Protocol, Port)",
+      "body": [
+        "attackerLocated(Zone)",
+        "inCompetent(User, H, Perm)",
+        "hacl(Zone, H, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "direct_network_access",
+      "rule_desc": "Direct Network Access",
+      "head": "netAccess(H, Protocol, Port)",
+      "body": [
+        "attackerLocated(Zone)",
+        "hacl(Zone, H, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "valid_accounts",
+      "rule_desc": "Valid Accounts - T1078",
+      "head": "execCode(H, Perm)",
+      "body": [
+        "attackerLocated(Zone)",
+        "hacl(Zone, H, _, _)",
+        "leakAccount(_, H, Perm)"
+      ]
+    },
+    {
+      "case_id": "weak_account_initial",
+      "rule_desc": "Brute Force Password Spraying - T1110.003",
+      "head": "execCode(H, Perm)",
+      "body": [
+        "attackerLocated(Zone)",
+        "hacl(Zone, H, _, _)",
+        "weakAccount(H, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "public_application_initial",
+      "rule_desc": "Exploit Public-Facing Application - T1190",
+      "head": "execCode(H, Perm)",
+      "body": [
+        "ttpExists(H, _, Software, remoteExploit, publicApplicationExploit, initialAccess)",
+        "networkServiceInfo(H, Software, Protocol, Port, Perm)",
+        "netAccess(H, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "lsass_admin",
+      "rule_desc": "OS Credential Dumping LSASS Memory - T1003.001",
+      "head": "getAccount(H, User, Passwd, Perm)",
+      "body": [
+        "ttpExists(H, Software, _, lsassCredentialDumping, credentialAccess)",
+        "networkServiceInfo(H, Software, _, _, _)",
+        "hasAccount(H, User, Passwd, Perm)",
+        "execCode(H, admin)"
+      ]
+    },
+    {
+      "case_id": "lsass_system",
+      "rule_desc": "OS Credential Dumping LSASS Memory - T1003.001",
+      "head": "getAccount(H, User, Passwd, Perm)",
+      "body": [
+        "ttpExists(H, Software, _, domainCredentialDumping, credentialAccess)",
+        "networkServiceInfo(H, Software, _, _, system)",
+        "hasAccount(H, User, Passwd, Perm)",
+        "execCode(H, system)"
+      ]
+    },
+    {
+      "case_id": "weak_account_lateral",
+      "rule_desc": "Brute Force Password Spraying - T1110.003",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "execCode(HostS, _)",
+        "weakAccount(HostD, _, _, Perm)",
+        "hacl(HostS, HostD, Protocol, Port)",
+        "dif(Port, 2049)",
+        "dif(Port, 873)"
+      ]
+    },
+    {
+      "case_id": "client_execution_internet",
+      "rule_desc": "Exploitation for Client Execution internet - T1203",
+      "head": "execCode(H, Perm)",
+      "body": [
+        "ttpExists(H, _, Software, _, clientVulnerability, execution)",
+        "networkServiceInfo(H, Software, Protocol, Port, Perm)",
+        "attackVectorInjection(H, _, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "ddos_exploitation",
+      "rule_desc": "DDOS-Application or System Exploitation - T1499.004",
+      "head": "execCode(H, Perm)",
+      "body": [
+        "ttpExists(H, _, Software, remoteClient, ddosForExploit, impact)",
+        "networkServiceInfo(H, Software, Protocol, Port, Perm)",
+        "attackVectorInjection(H, _, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "boundary_bridge_lateral",
+      "rule_desc": "Network Boundary Bridging Network Address Translation Traversal - T1599.001",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "execCode(HostS, Perm)",
+        "ttpExists(HostD, _, Software, remoteClient, networkBoundaryBridging, defenseEvasion)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "hacl(HostS, HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "masquerading",
+      "rule_desc": "Masquerading - Match Legitimate Name or Location - T1036.005",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "hacl(HostS, HostD, Protocol, Port)",
+        "ttpExists(HostD, Software, remoteClient, disguisedLegitimateDocument, defenseEvasion)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "netAccess(HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "disable_firewall",
+      "rule_desc": "Impair Defenses - Disable or Modify Tools - T1562.001",
+      "head": "disableFirewall(HostD)",
+      "body": [
+        "isFirewall(HostD, exit)",
+        "execCode(HostS, system)",
+        "ttpExists(HostD, Software, remoteClient, remoteDisableDefenses, defenseEvasion)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "hacl(HostS, HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "boundary_bridge_injected",
+      "rule_desc": "Network Boundary Bridging - Network Address Translation Traversal - T1599.001",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "attackVectorInjection(HostD, _, Protocol, Port)",
+        "ttpExists(HostD, _, Software, remoteClient, networkBoundaryBridging, defenseEvasion)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)"
+      ]
+    },
+    {
+      "case_id": "process_injection",
+      "rule_desc": "Process Injection - T1055",
+      "head": "execCode(H, admin)",
+      "body": [
+        "ttpExists(H, Software, local, processInjection, privilegeEscalation)",
+        "networkServiceInfo(H, Software, _, _, admin)",
+        "execCode(H, Perm)",
+        "dif(Perm, admin)",
+        "dif(Perm, root)"
+      ]
+    },
+    {
+      "case_id": "local_privilege_exploit",
+      "rule_desc": "Exploitation for Privilege Escalation - T1068",
+      "head": "execCode(H, Perm1)",
+      "body": [
+        "ttpExists(H, _, Software, local, privilegeEscalationExploit, privilegeEscalation)",
+        "networkServiceInfo(H, Software, _, _, Perm1)",
+        "execCode(H, Perm)",
+        "dif(Perm, admin)",
+        "dif(Perm, root)"
+      ]
+    },
+    {
+      "case_id": "scheduled_task",
+      "rule_desc": "Scheduled Task Job At - T1053.002",
+      "head": "execCode(H, admin)",
+      "body": [
+        "ttpExists(H, Software, local, scheduledTaskExploit, privilegeEscalation)",
+        "networkServiceInfo(H, Software, _, _, admin)",
+        "execCode(H, Perm)",
+        "dif(Perm, admin)",
+        "dif(Perm, root)"
+      ]
+    },
+    {
+      "case_id": "public_application_privilege",
+      "rule_desc": "Exploit Public-Facing Application - T1190",
+      "head": "execCode(H, system)",
+      "body": [
+        "ttpExists(H, _, Software, local, publicApplicationExploit, privilegeEscalation)",
+        "networkServiceInfo(H, Software, _, _, system)",
+        "execCode(H, Perm)",
+        "dif(Perm, system)"
+      ]
+    },
+    {
+      "case_id": "path_hijack_admin",
+      "rule_desc": "Hijack Execution Flow Path Interception - T1574.007",
+      "head": "execCode(H, admin)",
+      "body": [
+        "ttpExists(H, Software, local, pathHijack, privilegeEscalation)",
+        "pathExists(H, _, write, admin)",
+        "execCode(H, Perm)",
+        "dif(Perm, admin)",
+        "dif(Perm, root)"
+      ]
+    },
+    {
+      "case_id": "path_hijack_root",
+      "rule_desc": "Hijack Execution Flow Path Interception - T1574.007",
+      "head": "execCode(H, root)",
+      "body": [
+        "ttpExists(H, Software, local, pathHijack, privilegeEscalation)",
+        "pathExists(H, _, write, root)",
+        "execCode(H, Perm)",
+        "dif(Perm, admin)",
+        "dif(Perm, root)"
+      ]
+    },
+    {
+      "case_id": "container_escape",
+      "rule_desc": "Exploitation for Privilege Escalation - T1068",
+      "head": "execCode(H, root)",
+      "body": [
+        "execCode(Docker, root)",
+        "ttpExists(H, _ , local, escapetoHost, privilegeEscalation)",
+        "isDocker(H, Docker)"
+      ]
+    },
+    {
+      "case_id": "command_interpreter",
+      "rule_desc": "Command and Scripting Interpreter - T1623",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "execCode(HostS, _)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "ttpExists(HostD, Software, remoteExploit, commandInterpreterExploit, execution)",
+        "hacl(HostS, HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "client_execution_intranet",
+      "rule_desc": "Exploitation for Client Execution intranet - T1203",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "execCode(HostS, _)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "ttpExists(HostD, _, Software, _, clientVulnerability, execution)",
+        "hacl(HostS, HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "visual_basic_lateral",
+      "rule_desc": "Command and Scripting Interpreter - Visual Basic - T1059.005",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "execCode(HostS, _)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "ttpExists(HostD, _, Software, _, abuseofVBScriptorVBA, execution)",
+        "hacl(HostS, HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "visual_basic_injected",
+      "rule_desc": "Command and Scripting Interpreter - Visual Basic - T1059.005",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "attackVectorInjection(HostD, _, Protocol, Port)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "ttpExists(HostD, _, Software, _, abuseofVBScriptorVBA, execution)"
+      ]
+    },
+    {
+      "case_id": "browser_session",
+      "rule_desc": "Browser Session Hijacking - T1185",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "execCode(HostS, _)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "ttpExists(HostD, _, Software, _, browserSessionHijacking, collection)",
+        "hacl(HostS, HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "nfs_remote_management",
+      "rule_desc": "Remote Services - SMB Windows Admin Shares - T1021.002",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "networkServiceInfo(HOSTD, Software, Protocol, Port, Perm)",
+        "nfsMount(HOSTD, _, Software, write, HOSTS)",
+        "ttpExists(HOSTD, Software, _, linuxRemoteManagement, lateralMovement)",
+        "execCode(HOSTS, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "winrm_system_firewall_state",
+      "rule_desc": "Remote Services - Windows Remote Management - T1021.006",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "networkServiceInfo(HOSTD, winrm, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, system)",
+        "isFirewall(HOSTD, flase)",
+        "getAccount(_, User, Passwd, Perm)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "winrm_admin_firewall_state",
+      "rule_desc": "Remote Services - Windows Remote Management - T1021.006",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "networkServiceInfo(HOSTD, winrm, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, admin)",
+        "isFirewall(HOSTD, flase)",
+        "dif(HOSTD, pc_1)",
+        "getAccount(_, User, Passwd, Perm)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "winrm_system_after_firewall_disable",
+      "rule_desc": "Remote Services - Windows Remote Management - T1021.006",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "networkServiceInfo(HOSTD, winrm, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, system)",
+        "disableFirewall(HOSTD)",
+        "getAccount(_, User, Passwd, Perm)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "pass_the_hash",
+      "rule_desc": "Use Alternate Authentication Material - Pass the Hash - T1550.002",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "networkServiceInfo(HOSTD, smb, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, admin)",
+        "getAccount(_, User, Passwd, _)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "rdp_hijack",
+      "rule_desc": "Remote Service Session RDP Hijacking - T1563.002",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "networkServiceInfo(HOSTD, rds, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, admin)",
+        "getAccount(_, User, Passwd, Perm)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "remote_services_without_cve",
+      "rule_desc": "Exploitation of Remote Services - T1210",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "ttpExists(HOSTD, Software, _, remoteServicesExploitation, lateralMovement)",
+        "networkServiceInfo(HOSTD, Software, Protocol, Port, Perm)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, _)"
+      ]
+    },
+    {
+      "case_id": "remote_services_with_cve",
+      "rule_desc": "Exploitation of Remote Services - T1210",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "ttpExists(HOSTD, _, Software, _, remoteServicesExploitation, lateralMovement)",
+        "networkServiceInfo(HOSTD, Software, Protocol, Port, Perm)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, _)"
+      ]
+    },
+    {
+      "case_id": "ssh_hijack",
+      "rule_desc": "Remote Service Session SSH Hijacking - T1563.001",
+      "head": "execCode(HostD, Perm)",
+      "body": [
+        "execCode(HostS, _)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "ttpExists(HostD, Software, remoteExploit, sshHijacking, lateralMovement)",
+        "hacl(HostS, HostD, Protocol, Port)"
+      ]
+    },
+    {
+      "case_id": "disable_firewall_credentialed",
+      "rule_desc": "Impair Defenses - Disable or Modify Tools - T1562.001",
+      "head": "disableFirewall(HostD)",
+      "body": [
+        "isFirewall(HostD, exit)",
+        "execCode(HostS, system)",
+        "ttpExists(HostD, Software, remoteClient, remoteDisableDefenses, defenseEvasion)",
+        "networkServiceInfo(HostD, Software, Protocol, Port, Perm)",
+        "hacl(HostS, HostD, Protocol, Port)",
+        "getAccount(HostS, User, Passwd, system)",
+        "hasAccount(HostD, User, Passwd, system)"
+      ]
+    },
+    {
+      "case_id": "windows_credential_remote_system_firewall_state",
+      "rule_desc": "Remote Services - Windows Credential Remote Execution - T1021",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "ttpExists(HOSTD, RemoteService, _, windowsCredentialRemoteExecution, lateralMovement)",
+        "networkServiceInfo(HOSTD, RemoteService, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, system)",
+        "isFirewall(HOSTD, flase)",
+        "getAccount(_, User, Passwd, Perm)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "windows_credential_remote_admin_firewall_state",
+      "rule_desc": "Remote Services - Windows Credential Remote Execution - T1021",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "ttpExists(HOSTD, RemoteService, _, windowsCredentialRemoteExecution, lateralMovement)",
+        "networkServiceInfo(HOSTD, RemoteService, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, admin)",
+        "isFirewall(HOSTD, flase)",
+        "dif(HOSTD, pc_1)",
+        "getAccount(_, User, Passwd, Perm)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    },
+    {
+      "case_id": "windows_credential_remote_system_after_firewall_disable",
+      "rule_desc": "Remote Services - Windows Credential Remote Execution - T1021",
+      "head": "execCode(HOSTD, Perm)",
+      "body": [
+        "ttpExists(HOSTD, RemoteService, _, windowsCredentialRemoteExecution, lateralMovement)",
+        "networkServiceInfo(HOSTD, RemoteService, Protocol, Port, _)",
+        "hacl(HOSTS, HOSTD, Protocol, Port)",
+        "execCode(HOSTS, system)",
+        "disableFirewall(HOSTD)",
+        "getAccount(_, User, Passwd, Perm)",
+        "hasAccount(HOSTD, User, Passwd, Perm)"
+      ]
+    }
+  ]
+}

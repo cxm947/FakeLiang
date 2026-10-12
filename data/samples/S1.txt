@@ -1,0 +1,72 @@
+1,"attackVectorInjection(webServer,admin,https,7001)","OR",0
+2,"RULE 0 (Insecure Operations Leading to Attack Vector Injection)","AND",0
+3,"hacl(internet,webServer,https,7001)","LEAF",1
+2,3,-1
+4,"inCompetent(victim_1,webServer,admin)","LEAF",1
+2,4,-1
+5,"attackerLocated(internet)","LEAF",1
+2,5,-1
+1,2,-1
+6,"disableFirewall(pc_server)","OR",0
+7,"RULE 11 (Impair Defenses - Disable or Modify Tools - T1562.001)","AND",0
+8,"hacl(webServer,pc_server,tcp,445)","LEAF",1
+7,8,-1
+9,"networkServiceInfo(pc_server,firewall,tcp,445,system)","LEAF",1
+7,9,-1
+10,"ttpExists(pc_server,firewall,remoteClient,remoteDisableDefenses,defenseEvasion)","LEAF",1
+7,10,-1
+11,"execCode(webServer,system)","OR",0
+12,"RULE 17 (Exploit Public-Facing Application - T1190)","AND",0
+13,"execCode(webServer,admin)","OR",0
+14,"RULE 8 (Exploitation for Client Execution internet - T1203)","AND",0
+14,1,-1
+15,"networkServiceInfo(webServer,webLogic,https,7001,admin)","LEAF",1
+14,15,-1
+16,"ttpExists(webServer,'CVE-2019-2725',webLogic,remoteClient,clientVulnerability,execution)","LEAF",1
+14,16,-1
+13,14,-1
+12,13,-1
+17,"networkServiceInfo(webServer,smbv1,tcp,445,system)","LEAF",1
+12,17,-1
+18,"ttpExists(webServer,'CVE-2017-0146',smbv1,local,publicApplicationExploit,privilegeEscalation)","LEAF",1
+12,18,-1
+11,12,-1
+7,11,-1
+19,"isFirewall(pc_server,exit)","LEAF",1
+7,19,-1
+6,7,-1
+20,"execCode(pc_1,system)","OR",0
+21,"RULE 26 (Remote Services - Windows Remote Management - T1021.006)","AND",0
+22,"hasAccount(pc_1,xige,1234,system)","LEAF",1
+21,22,-1
+23,"getAccount(webServer,xige,1234,system)","OR",0
+24,"RULE 6 (OS Credential Dumping LSASS Memory - T1003.001)","AND",0
+24,11,-1
+25,"hasAccount(webServer,xige,1234,system)","LEAF",1
+24,25,-1
+26,"networkServiceInfo(webServer,lsass,local,local,system)","LEAF",1
+24,26,-1
+27,"ttpExists(webServer,lsass,local,domainCredentialDumping,credentialAccess)","LEAF",1
+24,27,-1
+23,24,-1
+21,23,-1
+28,"isFirewall(pc_1,flase)","LEAF",1
+21,28,-1
+21,11,-1
+29,"hacl(webServer,pc_1,winrm,139)","LEAF",1
+21,29,-1
+30,"networkServiceInfo(pc_1,winrm,winrm,139,system)","LEAF",1
+21,30,-1
+20,21,-1
+31,"execCode(pc_server,system)","OR",0
+32,"RULE 28 (Remote Services - Windows Remote Management - T1021.006)","AND",0
+33,"hasAccount(pc_server,xige,1234,system)","LEAF",1
+32,33,-1
+32,23,-1
+32,6,-1
+32,11,-1
+34,"hacl(webServer,pc_server,winrm,139)","LEAF",1
+32,34,-1
+35,"networkServiceInfo(pc_server,winrm,winrm,139,system)","LEAF",1
+32,35,-1
+31,32,-1

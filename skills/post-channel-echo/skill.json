@@ -1,0 +1,12 @@
+{
+  "input": {
+    "required": [
+      {
+        "name": "session_ref",
+        "type": "session_ref",
+        "from": "runtime"
+      }
+    ]
+  },
+  "judge": "observation_only"
+}

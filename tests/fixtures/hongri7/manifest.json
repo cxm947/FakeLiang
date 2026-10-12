@@ -1,0 +1,25 @@
+{
+  "files": [
+    {
+      "path": "data/inputs/hongri7/Hongri7_v2.txt",
+      "sha256": "732f7995d9b9a4b30513e36a3dd156130970231abaa0cfa0abd9595c7c287a4b",
+      "source": "data/inputs/hongri7/Hongri7_v2.txt"
+    },
+    {
+      "path": "data/inputs/hongri7/host_ip_map.csv",
+      "sha256": "64a7ca61c7b89fea39e59d95780f089cc9640a542355d029f5e9bd566681a443",
+      "source": "data/inputs/hongri7/host_ip_map.csv"
+    },
+    {
+      "path": "data/inputs/hongri7/assets.json",
+      "sha256": "5a17ba0dd58e07804c221b1fa086e4b68b7ba5fd421c6f777f79067a710ea6ed",
+      "source": "data/inputs/hongri7/assets.json"
+    },
+    {
+      "path": "tests/fixtures/hongri7/reference.action_graph.json",
+      "sha256": "c7cb19008f5a89b7f72b9672c72e425e7789b5e2cbc15aad122d97460d438cf5",
+      "source": "output/hongri7/json/Hongri7_v2.action_graph.json"
+    }
+  ],
+  "runtime_commit": "33c8f96"
+}
