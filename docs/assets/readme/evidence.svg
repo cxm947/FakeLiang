@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="149" height="32" viewBox="0 0 149 32" role="img" aria-labelledby="title desc">
+  <title id="title">Call evidence</title>
+  <desc id="desc">Call evidence badge with a document and check mark icon.</desc>
+  <rect x="0.5" y="0.5" width="148" height="31" rx="7" fill="#0b1420" stroke="#2c4558"/>
+  <g fill="none" stroke="#63d9c1" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 6h9l5 5v14H14zM23 6v5h5M18 15h6m-6 4h3"/>
+    <path d="m9 20 3 3 6-7" stroke="#a4d9fc" stroke-width="1.8"/>
+  </g>
+  <text x="39" y="20" fill="#dceaf4" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" letter-spacing="0.4">CALL EVIDENCE</text>
+</svg>

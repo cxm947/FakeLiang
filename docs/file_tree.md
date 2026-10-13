@@ -1,6 +1,6 @@
 # 发布文件地图
 
-本清单是发布目录的完整跟踪文件清单，由源提交和固定发布规则生成。去留原因和原始/发布 SHA-256 见 RELEASE-MANIFEST.json。代码、卡、原测试保留源字节；文档清单对应本发布仓库，不是源仓库的产物目录。
+本清单列出当前仓库的完整跟踪文件。初始发布文件的去留原因和原始/发布 SHA-256 见 RELEASE-MANIFEST.json；后续补充的 README 展示资源一并纳入本清单。代码、卡、原测试保留源字节；文档清单对应本仓库，不是源仓库的产物目录。
 
 <!-- agv:file-list:start -->
 ```json
@@ -34,6 +34,11 @@
   "data/samples/lab_demo/host_ip_map.csv",
   "data/samples/lab_demo/run_context.demo.json",
   "docs/README.md",
+  "docs/assets/readme/banner.svg",
+  "docs/assets/readme/evidence.svg",
+  "docs/assets/readme/graph-input.svg",
+  "docs/assets/readme/multi-agent.svg",
+  "docs/assets/readme/python.svg",
   "docs/decisions.md",
   "docs/file_tree.md",
   "docs/orchestration_batch2.md",

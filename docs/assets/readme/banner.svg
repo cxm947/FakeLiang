@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="260" viewBox="0 0 960 260" role="img" aria-labelledby="title desc">
+  <title id="title">FakeLiang — Attack graph validation agent</title>
+  <desc id="desc">A navy banner with the FakeLiang name, the phrase From graph paths to verifiable evidence, Planner, Executor and Verifier labels, and an abstract network connected to an evidence card.</desc>
+  <defs>
+    <linearGradient id="edge" x1="580" y1="44" x2="880" y2="205" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#63d9c1"/>
+      <stop offset="1" stop-color="#8fc8f4"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.38" r="0.63">
+      <stop stop-color="#163244"/>
+      <stop offset="1" stop-color="#0b1420"/>
+    </radialGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#8fc8f4" opacity="0.13"/>
+    </pattern>
+  </defs>
+  <rect width="960" height="260" rx="18" fill="#0b1420"/>
+  <rect x="1" y="1" width="958" height="258" rx="17" fill="url(#glow)" stroke="#253747"/>
+  <rect x="552" y="18" width="388" height="224" rx="14" fill="url(#dots)"/>
+  <path d="M44 34h23" stroke="#63d9c1" stroke-width="3" stroke-linecap="round"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="79" y="39" fill="#98b5c7" font-size="11" font-weight="600" letter-spacing="2.4">ATTACK GRAPH VALIDATION</text>
+    <text x="42" y="107" fill="#edf7ff" font-size="58" font-weight="700" letter-spacing="-2">FakeLiang<tspan fill="#63d9c1">.</tspan></text>
+    <text x="45" y="140" fill="#b8cbd8" font-size="18">From graph paths to verifiable evidence.</text>
+    <g font-size="13" font-weight="600" text-anchor="middle">
+      <rect x="44" y="180" width="108" height="36" rx="8" fill="#142b32" stroke="#325b5b"/>
+      <text x="98" y="203" fill="#89e8d1">Planner</text>
+      <rect x="185" y="180" width="116" height="36" rx="8" fill="#152936" stroke="#36566b"/>
+      <text x="243" y="203" fill="#a4d9fc">Executor</text>
+      <rect x="334" y="180" width="108" height="36" rx="8" fill="#142b32" stroke="#325b5b"/>
+      <text x="388" y="203" fill="#89e8d1">Verifier</text>
+    </g>
+  </g>
+  <g fill="none" stroke="#627c8d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M161 198h14m-4-4 4 4-4 4"/>
+    <path d="M310 198h14m-4-4 4 4-4 4"/>
+  </g>
+  <g fill="none" stroke="#29485b" stroke-width="1.4">
+    <path d="M600 127 660 63 743 50 823 91 894 64"/>
+    <path d="M600 127 662 197 753 189 823 91"/>
+    <path d="M660 63 716 127 743 50"/>
+    <path d="M716 127 753 189"/>
+    <path d="M716 127 823 91"/>
+    <path d="M823 91 903 129"/>
+  </g>
+  <g fill="none" stroke="url(#edge)" stroke-width="2.5" stroke-linecap="round">
+    <path d="M600 127h116l107-36"/>
+    <path d="M716 127v34h63"/>
+  </g>
+  <g fill="#132735" stroke="#3b657b" stroke-width="1.5">
+    <circle cx="660" cy="63" r="6"/>
+    <circle cx="743" cy="50" r="5"/>
+    <circle cx="894" cy="64" r="5"/>
+    <circle cx="903" cy="129" r="5"/>
+    <circle cx="662" cy="197" r="5"/>
+    <circle cx="753" cy="189" r="5"/>
+  </g>
+  <g>
+    <circle cx="600" cy="127" r="18" fill="#15383d" opacity="0.65"/>
+    <circle cx="600" cy="127" r="8" fill="#63d9c1"/>
+    <circle cx="716" cy="127" r="21" fill="#17394b"/>
+    <rect x="707" y="118" width="18" height="18" rx="5" fill="#a4d9fc"/>
+    <circle cx="823" cy="91" r="16" fill="#173b40"/>
+    <circle cx="823" cy="91" r="7" fill="#63d9c1"/>
+  </g>
+  <rect x="782" y="150" width="132" height="72" rx="10" fill="#0c1a28" stroke="#3a6172"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="798" y="171" fill="#a8c9da" font-size="9" font-weight="600" letter-spacing="1.4">CALL EVIDENCE</text>
+  </g>
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="m799 187 3 3 5-6m-8 19 3 3 5-6" stroke="#63d9c1" stroke-width="1.8"/>
+    <path d="M817 187h77M817 203h52" stroke="#5e7f94" stroke-width="3"/>
+  </g>
+</svg>
