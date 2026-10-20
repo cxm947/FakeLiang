@@ -1,0 +1,10 @@
+# Run from the project root. The MCP wrapper forwards to the existing Kali HTTP service.
+transport: stdio
+command: .venv/Scripts/python.exe
+args:
+  - -m
+  - src.agents.pre_verifier.kali_bridge
+  - --server
+  - http://127.0.0.1:5000
+tool_name: execute_command
+timeout: 45.0

@@ -1,0 +1,10 @@
+model: deepseek-flash
+provider: deepseek
+base_url: https://api.deepseek.com/v1
+api_key: YOUR_API_KEY
+timeout: 60.0
+reasoning_effort: low
+thinking: disabled
+temperature: 0.3
+max_tokens: 4000
+structured_method: json_mode

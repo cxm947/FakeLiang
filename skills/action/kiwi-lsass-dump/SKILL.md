@@ -1,0 +1,121 @@
+---
+name: kiwi-lsass-dump
+handover: session
+description: 在已提权的 meterpreter 会话里用 kiwi 扩展读 LSASS 登录会话缓存，取得凭据材料；凭据只能由解析记录证明。
+metadata:
+  predicates:
+  - lsass_system
+  - lsass
+  - T1003.001
+  platforms:
+  - windows
+  keywords:
+  - kiwi抓取凭据
+  - mimikatz凭据转储
+  - sekurlsa凭据提取
+  - exploit.kiwi_lsass_dump
+  - method
+  - position
+  - msf
+  - lsass_system
+  - lsass
+  - T1003.001
+  - kiwi
+  - dump
+  resources: []
+  categories:
+  - action-method
+  aliases:
+  - kiwi
+  - mimikatz
+  - sekurlsa
+  - LSASS
+  - 凭据转储
+  - msf
+  - meterpreter
+  parameters:
+  - host
+  when:
+    method: direct
+    target: lsass
+  requires:
+  - meterpreter
+  excludes: []
+  carriers:
+  - meterpreter
+  - msf
+serves:
+- lsass
+- T1003.001
+---
+
+## 适用场景
+
+目标是 Windows 主机，且手上有一条**已经提权到系统级**的 meterpreter 会话。本卡回答的只有一件事：这条会话能不能读出登录会话缓存里的凭据材料。
+
+- 只有 meterpreter 会话适用；**普通 shell 会话不适用**（kiwi 是 meterpreter 扩展，shell 里没有它的 API）。拿不到系统级身份时同样不适用：换“原生转储 + 带走解析”的路子（`exploit.comsvcs_minidump` → `exploit.pypykatz_parse`）。
+- 命令在会话里**逐条发**（运行层把每一条送进那条会话），不是在目标上跑本地脚本；目标上不存在随卡脚本或仓库路径。
+- 输入与工具面：`session_ref` 由运行层提供，**不得杜撰**；本卡工具面是 `msf`（命令经会话送进去），没有模型现场决定的输入。
+
+## 参数
+
+- 输入 `session_ref`：来自 runtime
+- 交付：evidence
+- 执行位置：position
+- 可用工具：msf
+- 图适用：case=lsass_system；service=lsass；technique=T1003.001
+
+## 步骤
+
+**进入条件（先看这条）**：本节点要的会话**已经登记**（运行层会在 `context.execution` 里给出那台主机的会话与平台）。本卡就在**那条会话上**发命令，工具用 `session`、`via` 用本步绑定的执行面；**不要起监听、不要新建会话、不要查作业列表**（真机第 59 轮就是因为去起监听、反复查 job 列表，把 24 步预算烧光而没拿到任何凭据）。
+
+`session` 把命令交给**会话自己的控制台层**；`cmd`/`code` 写的是这条通道上另开的解释器子壳，是另一层输入流，本卡的命令用它们发不出去（真机第 60 轮：用 `cmd` 发出的命令被 cmd.exe 回答 `'Get-Process' 不是内部或外部命令`）。
+
+在会话里按顺序发三条，**一条一个动作块**：
+
+```text
+{"tool":"session_command","target":"session","arguments":{"command":"sysinfo"}}
+{"tool":"session_command","target":"session","arguments":{"command":"load kiwi"}}
+{"tool":"session_command","target":"session","arguments":{"command":"creds_all"}}
+```
+
+回执读法（这就是本步骤的输入输出认定）：`response.stdout` 是那条命令在控制台上的原文，`response.console_confirmed=true` 表示命令已被接受、且在预算内看到了输出，`response.timed_out=true` 表示预算内没看到输出——**那说明结果未知，不说明通道坏了**，不要因此改去起监听或换通道。控制台命令**没有结束标记**，回执按「看到输出后静默」结束；同一会话上前后命令的回显连在一起，只认本次新增的那段。
+
+**一次答复只给一个动作块；不要把几行用 `&` 拼成一条长命令，也不要用批量动作写法。**
+
+当前执行器只接受单动作：拼长行会一处坏、整条废，还会把回执尾巴弄丢。
+
+- `sysinfo` 看会话身份与系统；`load kiwi` 加载扩展（提示“已经加载”不算失败）；`creds_all` 等价于 `sekurlsa::logonpasswords`，把登录会话缓存里的凭据读出来。
+- 读法：输出是**定宽表格**，按表头列偏移切片，**不要按空白分割**（LM 单元格为空时会把哈希列错移）；横幅不会与结果同步出现，以“输出静默”为准判断读完；需要的只是**本次 transcript** 的输出（主机行、身份行、凭据行）。
+
+本步判 `passed` 需要出现本卡要求的证据；出现明确失败条件判 `failed`；证据不足或效果未确认判 `unknown`，不拿「请求已发出」代替证据。
+
+
+## 完成依据
+
+**`finish.verdict` 判本卡要求的事实是否成立（这条会话是否读出了真实账号的凭据材料），不是“命令是否跑完”。**
+
+证据字段：`call_id`、`host`、`identity_name`、`credential_material`（解析记录）、`dump_artifact_ref`（若有转储）；原始输出为 `stdout`。
+
+- **freshness**：核对本次调用与 transcript 的归属（meterpreter 没有 shell 层，不能回显标记）。
+- **target**：观测主机与节点目标一致。
+- **identity**：观测身份达到节点要求的层级（两种身份行写法都要认）。
+- **effect**：必须出现**真实账号的凭据材料**。
+
+- **pass**：四个闸都通过。
+- **unsatisfied**：回执完整且绑定正确，但明确没有真实账号的材料（例如只有空账号、机器账号或 `(null)`）；“工具跑过了”不使这条负事实变成 `pass`。
+- **uncertain**：身份不够、扩展不可用、回执缺失或无法解析——**缺证据不改判“不满足”**。
+
+**结论要交材料（凭据）**：从 `creds_all` 输出里挑**真实账号**的凭据行，按六件套交出 `realm`、`user`、`value`（原样回填观察中的占位符）、`kind`（`password` / `ntlm`）、`source_call`、`quote`。
+完成消息须带 `materials`，每条只含这六个字段；**模型不接触、不猜测明文**，摘要与私有引用由运行层核验后生成。不要交空账号、机器账号、`(null)`；交不出真实账号的材料就按证据记“不确定”。
+
+**同一行同时有明文与哈希时都交**，由既有选择规则按“明文优先”挑一条给下游：一个明文口令在任何槽位都能用，哈希只能给吃哈希的工具。
+
+## 失败条件
+
+- **停止边界：本卡一次调用只做上面那三条动作；完成即结束，不由本卡重试、追加动作或换会话。**
+- 会话不是 meterpreter 或权限不到系统级 → 本卡不适用，直接说明缺什么，别硬试；`load kiwi` 失败（扩展缺失、被内存扫描拦）→ 记下来，换“原生转储 + 带走解析”的路子。
+- transcript 里可能出现自己登录留下的空用户名条目：可以过滤，但不能据此断定没有真实凭据。
+- 产物含明文凭据：按敏感材料处理，不外传。
+
+[共享执行规则](../../src/skills/templates/execution_rules.txt)

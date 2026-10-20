@@ -1,157 +1,189 @@
-"""Read the CSV-like MulVAL TXT dialect used by S1/S2/S3.
-
-Nodes: id,description,type,metric. Edges: destination,source,weight.
-Everything here is local data processing; predicate text is never executed.
-"""
-
-from __future__ import annotations
+"""Read node rows and dependent,prerequisite,-1 edges into one document."""
 
 import csv
 import hashlib
-import heapq
-import io
-import json
-import math
 import re
-from dataclasses import dataclass, field
 from pathlib import Path
 
-from .terms import Fact, parse_fact
+from .predicates import parse_parameters
+from .logic import incoming_type, prune_dependencies
 
 
 class GraphFormatError(ValueError):
-    pass
+    """The input cannot describe an unambiguous graph."""
 
 
-def id_key(value: str) -> int:
-    return int(value)
+def _node_id(value: str) -> str:
+    if not re.fullmatch(r"[0-9]+", value.strip()):
+        raise ValueError("expected a nonnegative integer node ID")
+    return str(int(value))
 
 
-def digest(value: object) -> str:
-    data = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(data.encode("utf-8")).hexdigest()
+HOST_FIELDS = {"host", "source_host", "target_host", "docker"}
+RULE = re.compile(r"\s*RULE\s+\d+\s*\((.*)\)\s*")
 
 
-@dataclass(frozen=True)
-class Node:
-    id: str
-    description: str
-    type: str
-    metric: str
-
-    def as_dict(self) -> dict:
-        return {"id": self.id, "description": self.description, "type": self.type, "metric": self.metric}
-
-
-@dataclass
-class Graph:
-    nodes: dict[str, Node]
-    weights: dict[tuple[str, str], str]
-    diagnostics: list[dict] = field(default_factory=list)
-
-    def __post_init__(self):
-        self.parents = {nid: set() for nid in self.nodes}
-        self.children = {nid: set() for nid in self.nodes}
-        self.facts: dict[str, Fact] = {}
-        for (source, target), _weight in self.weights.items():
-            if source not in self.nodes or target not in self.nodes:
-                raise GraphFormatError(f"missing endpoint: {source} -> {target}")
-            kinds = (self.nodes[source].type, self.nodes[target].type)
-            if kinds not in {("LEAF", "AND"), ("OR", "AND"), ("AND", "OR")}:
-                raise GraphFormatError(f"unsupported edge types {kinds}: {source} -> {target}; check edge direction")
-            self.parents[target].add(source)
-            self.children[source].add(target)
-        for nid in sorted(self.nodes, key=id_key):
-            if self.nodes[nid].type == "AND":
-                continue
-            try:
-                self.facts[nid] = parse_fact(self.nodes[nid].description)
-            except ValueError:
-                self.diagnostics.append({"code": "unparsed_fact", "node_ref": nid, "severity": "warning"})
-
-    @property
-    def actions(self) -> list[str]:
-        return sorted((nid for nid, node in self.nodes.items() if node.type == "AND"), key=id_key)
-
-    @property
-    def terminals(self) -> list[str]:
-        return sorted((nid for nid, node in self.nodes.items() if node.type == "OR" and not self.children[nid]), key=id_key)
-
-    def archive(self) -> dict:
-        return {
-            "nodes": [self.nodes[nid].as_dict() for nid in sorted(self.nodes, key=id_key)],
-            "edges": [{"source": source, "target": target, "weight": self.weights[source, target]}
-                      for source, target in sorted(self.weights, key=lambda pair: (id_key(pair[0]), id_key(pair[1])))],
-        }
-
-    def topological_order(self) -> list[str] | None:
-        indegree = {nid: len(parents) for nid, parents in self.parents.items()}
-        queue = [(id_key(nid), nid) for nid, count in indegree.items() if count == 0]
-        heapq.heapify(queue)
-        order = []
-        while queue:
-            _, nid = heapq.heappop(queue)
-            order.append(nid)
-            for child in self.children[nid]:
-                indegree[child] -= 1
-                if indegree[child] == 0:
-                    heapq.heappush(queue, (id_key(child), child))
-        return order if len(order) == len(self.nodes) else None
-
-
-def _node_id(value: str, line: int) -> str:
-    if not re.fullmatch(r"\d+", value.strip()):
-        raise GraphFormatError(f"line {line}: expected a nonnegative integer node ID")
-    return str(int(value.strip()))
-
-
-def _number(value: str, line: int) -> str:
-    value = value.strip()
-    try:
-        valid = math.isfinite(float(value))
-    except ValueError:
-        valid = False
-    if not valid:
-        raise GraphFormatError(f"line {line}: metric/weight must be a finite number")
-    return value  # Do not silently discard the original numeric token.
-
-
-def read_text(text: str, *, edge_order: str = "target-source") -> Graph:
-    if edge_order not in {"target-source", "source-target"}:
-        raise ValueError("edge_order must be target-source or source-target")
-    nodes, weights, diagnostics = {}, {}, []
-    reader = csv.reader(io.StringIO(text.lstrip("\ufeff")), skipinitialspace=True, strict=True)
-    try:
-        for row in reader:
-            line = reader.line_num
-            if not row or all(not item.strip() for item in row):
-                continue
+def _rows(text):
+    nodes, edges = {}, set()
+    for line_number, line in enumerate(text.lstrip("\ufeff").splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            row = next(csv.reader([line], skipinitialspace=True, strict=True))
             if len(row) == 4:
-                raw_id, description, kind, metric = row
-                nid = _node_id(raw_id, line)
-                if nid in nodes:
-                    raise GraphFormatError(f"line {line}: duplicate node ID {nid}")
-                if kind.strip() not in {"AND", "OR", "LEAF"}:
-                    raise GraphFormatError(f"line {line}: unsupported node type")
-                nodes[nid] = Node(nid, description, kind.strip(), _number(metric, line))
+                raw_id, description, kind, _metric = row
+                node_id = _node_id(raw_id)
+                if node_id in nodes:
+                    raise ValueError(f"duplicate node ID {node_id}")
+                kind = "AND" if RULE.fullmatch(description) else kind.strip()
+                if kind not in {"LEAF", "OR", "AND"}:
+                    raise ValueError(f"unsupported node type {kind!r}")
+                nodes[node_id] = {"id": node_id, "type": kind,
+                                  "description": description,
+                                  "parameters": parse_parameters(description),
+                                  "parents": [], "children": []}
             elif len(row) == 3:
-                first, second, weight = row
-                a, b = _node_id(first, line), _node_id(second, line)
-                pair = (b, a) if edge_order == "target-source" else (a, b)
-                weight = _number(weight, line)
-                if pair in weights:
-                    if weights[pair] != weight:
-                        raise GraphFormatError(f"line {line}: conflicting duplicate edge {pair}")
-                    diagnostics.append({"code": "duplicate_edge", "severity": "warning", "line": line})
-                weights[pair] = weight
+                dependent, prerequisite, weight = row
+                if weight.strip() != "-1":
+                    raise ValueError("expected edge weight -1")
+                edges.add((_node_id(prerequisite), _node_id(dependent)))
             else:
-                raise GraphFormatError(f"line {line}: expected 3 (edge) or 4 (node) CSV fields")
-    except csv.Error as error:
-        raise GraphFormatError(f"line {reader.line_num}: malformed CSV") from error
+                raise ValueError("expected 4 node fields or 3 edge fields")
+        except (csv.Error, ValueError) as error:
+            raise GraphFormatError(f"line {line_number}: {error}") from error
     if not nodes:
         raise GraphFormatError("input contains no nodes")
-    return Graph(nodes, weights, diagnostics)
+    for source, target in sorted(edges, key=lambda pair: tuple(map(int, pair))):
+        if source not in nodes or target not in nodes:
+            raise GraphFormatError(f"missing endpoint: {source} -> {target}")
+        nodes[target]["parents"].append(source)
+        nodes[source]["children"].append(target)
+    return nodes, edges
 
 
-def read_txt(path: str | Path, *, edge_order: str = "target-source", encoding: str = "utf-8-sig") -> Graph:
-    return read_text(Path(path).read_text(encoding=encoding), edge_order=edge_order)
+def _unique(values, field, node_id):
+    values = set(values)
+    if len(values) > 1:
+        raise GraphFormatError(f"node {node_id}: ambiguous {field}")
+    return next(iter(values), None)
+
+
+def _action_parameters(node, nodes):
+    neighbors = [nodes[ref] for ref in node["parents"] + node["children"]]
+    parameters = [neighbor["parameters"] for neighbor in neighbors]
+    hosts = {value for item in parameters for key, value in item.items()
+             if key in HOST_FIELDS}
+    if len(hosts) > 2:
+        raise GraphFormatError(f"node {node['id']}: more than two hosts")
+    if len(hosts) < 2:
+        result = {"host": next(iter(hosts), None)}
+    else:
+        pairs = {(item["source_host"], item["target_host"]) for item in parameters
+                 if "source_host" in item and "target_host" in item}
+        pair = _unique(pairs, "host roles", node["id"])
+        if pair is None:
+            effects = [nodes[ref]["parameters"] for ref in node["children"]]
+            target = _unique((item.get("target_host", item.get("host"))
+                              for item in effects
+                              if "host" in item or "target_host" in item),
+                             "target host", node["id"])
+            if target is None:
+                raise GraphFormatError(f"node {node['id']}: ambiguous host roles")
+            pair = (next(iter(hosts - {target})), target)
+        result = dict(zip(("source_host", "target_host"), pair))
+    services = [neighbor["parameters"] for neighbor in neighbors
+                if neighbor["description"].partition("(")[0].strip() == "networkServiceInfo"]
+    for key in ("service", "protocol", "port"):
+        preferred = [item[key] for item in services if key in item]
+        values = preferred or [item[key] for item in parameters if key in item]
+        result[key] = _unique(values, key, node["id"])
+    return result
+
+
+def _rule_metadata(description):
+    match = RULE.fullmatch(description)
+    rule_desc = match[1].strip() if match else description
+    attack = re.search(r"\s*-\s*(T\d{4}(?:\.\d{3})?)\s*$", rule_desc)
+    return {"rule_desc": rule_desc[:attack.start()].strip() if attack else rule_desc,
+            "attack_id": attack[1] if attack else None}
+
+
+def _dependency(node, parameters):
+    return {"type": node["type"], "description": node["description"], "id": node["id"],
+            **{key: value for key, value in parameters.items() if value is not None}}
+
+
+def _project_edges(nodes, retained):
+    edges = set()
+    for source in retained:
+        pending, visited = list(nodes[source]["children"]), set()
+        while pending:
+            target = pending.pop()
+            if target in visited:
+                continue
+            visited.add(target)
+            if target in retained:
+                edges.add((source, target))
+            elif nodes[target]["type"] == "OR":
+                pending.extend(nodes[target]["children"])
+    return [{"src": source, "dst": target} for source, target in
+            sorted(edges, key=lambda pair: tuple(map(int, pair)))]
+
+
+def read_text(text: str, *, source_file=None, source_sha256=None, original=False) -> dict:
+    nodes, original_edges = _rows(text)
+    parameters = {key: (_action_parameters(node, nodes) if node["type"] == "AND"
+                        else node["parameters"]) for key, node in nodes.items()}
+    terminal = {key for key, node in nodes.items()
+                if node["type"] == "OR" and not node["children"]}
+    retained = terminal | {key for key, node in nodes.items() if node["type"] == "AND"}
+    if original:
+        retained = set(nodes)
+        pruning = {}
+    else:
+        nodes, pruning = prune_dependencies(nodes, original_edges)
+    output_nodes = []
+    for key in sorted(retained, key=int):
+        node = nodes[key]
+        record = {name: node[name] for name in ("id", "type", "description")}
+        if not original:
+            try:
+                record["type"] = incoming_type(key, nodes, retained)
+            except ValueError as error:
+                raise GraphFormatError(str(error)) from error
+        if node["type"] == "AND":
+            record.update(_rule_metadata(node["description"]))
+        record.update(parameters[key])
+        record["dependencies"] = {
+            direction: [_dependency(nodes[ref], parameters[ref])
+                        for ref in sorted(node[direction], key=int)]
+            for direction in ("parents", "children")}
+        output_nodes.append(record)
+    hosts = sorted({value for node in nodes.values()
+                    for key, value in node["parameters"].items() if key in HOST_FIELDS})
+    output_edges = _project_edges(nodes, retained)
+    return {
+        "schema_version": "original-1.0" if original else "2.0",
+        "final_goal": sorted(terminal, key=int),
+        "inputs": {"graph": {"file": str(source_file) if source_file is not None else None,
+                             "format": "txt", "sha256": source_sha256 or
+                             hashlib.sha256(text.encode("utf-8")).hexdigest()},
+                   "host_map": {"source": None, "records": 0}},
+        "hosts": [{"host": host, "ips": []} for host in hosts],
+        "nodes": output_nodes,
+        "edges": output_edges,
+        "summary": {
+            "input_nodes": len(nodes), "input_edges": len(original_edges),
+            "and_nodes": sum(n["type"] == "AND" for n in nodes.values()), "terminal_or_nodes": len(terminal),
+            "output_nodes": len(output_nodes), "hosts": len(hosts), "addresses": 0,
+            "pruning": pruning,
+            **{f"{name}_dependencies": sum(
+                len(node["dependencies"][direction]) for node in output_nodes)
+               for name, direction in (("parent", "parents"), ("child", "children"))}},
+    }
+
+
+def read_txt(path: str | Path, *, encoding="utf-8-sig", original=False) -> dict:
+    data = Path(path).read_bytes()
+    return read_text(data.decode(encoding), source_file=path,
+                     source_sha256=hashlib.sha256(data).hexdigest(), original=original)

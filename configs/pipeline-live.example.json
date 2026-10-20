@@ -1,0 +1,19 @@
+{
+  "request": "configs/pipeline-request.local.json",
+  "initial_sessions": "configs/pipeline-sessions.local.json",
+  "bindings": "configs/vmware-lab.local.json",
+  "lab": "configs/action-lab.local.json",
+  "storage": "configs/storage.local.yaml",
+  "model": "configs/model.yaml",
+  "mcp": "configs/pre-mcp.local.yaml",
+  "owner_factory": "deployment.session_owner:open_owner",
+  "receiver_factory": "deployment.session_owner:reserve_receiver",
+  "owner_options": {},
+  "migration": {
+    "callback_host": "REQUIRED_CONTROLLER_ADDRESS",
+    "payload_ref": "REQUIRED_IMMUTABLE_OWNER_ARTIFACT"
+  },
+  "port_directory": "output/controller-ports",
+  "port_start": 42000,
+  "port_end": 42999
+}

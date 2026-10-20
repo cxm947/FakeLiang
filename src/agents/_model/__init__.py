@@ -1,1 +1,1 @@
-"""Shared model transport, exchange contracts and response parsing."""
+"""角色共用位置；当前编排未接入。"""

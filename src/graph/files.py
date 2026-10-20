@@ -6,6 +6,49 @@ import time
 from pathlib import Path
 
 
+def publish_bundle(paths, contents, *, writer=None):
+    """Publish a small bundle, rolling back completed writes on failure.
+
+    Each replacement is atomic; the whole bundle is not crash-atomic. Callers
+    must serialize writers. If rollback itself fails, retain original bytes in
+    a recovery directory and report it instead of claiming a consistent bundle.
+    """
+    writer = writer or atomic_write
+    if set(paths) != set(contents):
+        raise ValueError("artifact paths and contents must have matching keys")
+    check_targets(paths.values(), force=True)
+    originals = {name: Path(path).read_bytes() if Path(path).exists() else None
+                 for name, path in paths.items()}
+    written = []
+    try:
+        for name, path in paths.items():
+            writer(path, contents[name], force=True)
+            written.append(name)
+    except BaseException as failure:
+        failed_restores = []
+        for name in reversed(written):
+            try:
+                if originals[name] is None:
+                    Path(paths[name]).unlink(missing_ok=True)
+                else:
+                    writer(paths[name], originals[name], force=True)
+            except OSError:
+                failed_restores.append(name)
+        if failed_restores:
+            parent = Path(next(iter(paths.values()))).resolve().parent
+            recovery = Path(tempfile.mkdtemp(prefix=".agv-recovery-", dir=parent))
+            import json
+            manifest = {}
+            for index, name in enumerate(written):
+                backup = f"{index}.original" if originals[name] is not None else None
+                manifest[name] = {"target": str(Path(paths[name]).resolve()), "backup": backup}
+                if backup is not None:
+                    (recovery / backup).write_bytes(originals[name])
+            (recovery / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+            raise RuntimeError(f"Artifact publication and rollback failed; recovery data: {recovery}") from failure
+        raise
+
+
 def check_targets(paths, *, inputs=(), force=False):
     resolved = [Path(path).resolve() for path in paths]
     if len(set(resolved)) != len(resolved):

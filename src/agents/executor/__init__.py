@@ -1,4 +1,5 @@
-"""Executor-owned task loop, action handling, inputs, observations and prompts.
+"""Action generation and assessment contracts."""
 
-Package import does not eagerly load these modules.
-"""
+from .agent import PROMPT_PATH, ActionAgent, action, load_messages
+
+__all__ = ["PROMPT_PATH", "ActionAgent", "action", "load_messages"]

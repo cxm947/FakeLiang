@@ -1,22 +1,38 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+configs/model.yaml
+configs/*.local.*
+data/credential.key
+
+# Environments, caches, and editor state
+.venv*/
 __pycache__/
 *.py[cod]
-.venv/
 *.egg-info/
+.pytest_cache/
+.pgdata/
+.idea/
+.codex-bridge-inputs/
+.work-backups/
 build/
 dist/
-output/
-tmp/
-data/inputs/*
-!data/inputs/.gitkeep
-.pytest_cache/
-.idea/
 
-# Canonical Hongri7 offline fixtures
-!data/inputs/hongri7/
-data/inputs/hongri7/*
-!data/inputs/hongri7/Hongri7_v2.txt
-!data/inputs/hongri7/host_ip_map.csv
-!data/inputs/hongri7/assets.json
-
-# Release-local environments.
-.venv*/
+# Local test, evaluation, and generated artifacts
+/tests/
+/tmp/
+/tmp_*
+/output/
+/evaluate_*.py
+/verify.py
+/data/sim/
+/scripts/check*.py
+/scripts/check.ps1
+/scripts/report_*.py
+/scripts/action_live_review.py
+/scripts/inventory_action_capabilities.py
+/scripts/migrate_skills.py
+*.log
+*.tmp
+*.bak

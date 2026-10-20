@@ -1,0 +1,12 @@
+# Alternative for an existing SSH key/known-host configuration on the host computer.
+transport: stdio
+command: .venv/Scripts/python.exe
+args:
+  - -m
+  - src.agents.pre_verifier.kali_bridge
+  - --ssh-target
+  - kali@YOUR_KALI_ADDRESS
+  - --identity-file
+  - PATH_TO_EXISTING_PRIVATE_KEY
+tool_name: execute_command
+timeout: 45.0

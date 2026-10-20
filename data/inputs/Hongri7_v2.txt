@@ -1,0 +1,114 @@
+1,"disableFirewall(dc)","OR",0
+2,"RULE 12 (Impair Defenses - Disable or Modify Tools - T1562.001)","AND",0
+3,"hasAccount(dc,domain_administrator,lab_domain_credential,system)","LEAF",1
+2,3,-1
+4,"getAccount(pc1,domain_administrator,lab_domain_credential,system)","OR",0
+5,"RULE 6 (OS Credential Dumping LSASS Memory - T1003.001)","AND",0
+6,"execCode(pc1,system)","OR",0
+7,"RULE 21 (Command and Scripting Interpreter - T1623)","AND",0
+8,"hacl(web1,pc1,http,8080)","LEAF",1
+7,8,-1
+9,"ttpExists(pc1,tongda_oa_v11_3,remoteExploit,commandInterpreterExploit,execution)","LEAF",1
+7,9,-1
+10,"networkServiceInfo(pc1,tongda_oa_v11_3,http,8080,system)","LEAF",1
+7,10,-1
+11,"execCode(web1,root)","OR",0
+12,"RULE 4 (Exploit Public-Facing Application - T1190)","AND",0
+13,"netAccess(web1,tcp,6379)","OR",0
+14,"RULE 1 (Direct Network Access)","AND",0
+15,"hacl(attacker,web1,tcp,6379)","LEAF",1
+14,15,-1
+16,"attackerLocated(attacker)","LEAF",1
+14,16,-1
+13,14,-1
+12,13,-1
+17,"networkServiceInfo(web1,redis,tcp,6379,root)","LEAF",1
+12,17,-1
+18,"ttpExists(web1,redis_unauth_key_write,redis,remoteExploit,publicApplicationExploit,initialAccess)","LEAF",1
+12,18,-1
+11,12,-1
+7,11,-1
+6,7,-1
+19,"RULE 21 (Command and Scripting Interpreter - T1623)","AND",0
+20,"hacl(web2,pc1,http,8080)","LEAF",1
+19,20,-1
+19,9,-1
+19,10,-1
+21,"execCode(web2,root)","OR",0
+22,"RULE 20 (Exploitation for Privilege Escalation - T1068)","AND",0
+23,"isDocker(web2,web2_docker)","LEAF",1
+22,23,-1
+24,"ttpExists(web2,privileged_container,local,escapetoHost,privilegeEscalation)","LEAF",1
+22,24,-1
+25,"execCode(web2_docker,root)","OR",0
+26,"RULE 19 (Hijack Execution Flow Path Interception - T1574.007)","AND",0
+27,"execCode(web2_docker,www_data)","OR",0
+28,"RULE 4 (Exploit Public-Facing Application - T1190)","AND",0
+29,"netAccess(web2_docker,http,81)","OR",0
+30,"RULE 1 (Direct Network Access)","AND",0
+31,"hacl(attacker,web2_docker,http,81)","LEAF",1
+30,31,-1
+30,16,-1
+29,30,-1
+28,29,-1
+32,"networkServiceInfo(web2_docker,laravel,http,81,www_data)","LEAF",1
+28,32,-1
+33,"ttpExists(web2_docker,'CVE-2021-3129',laravel,remoteExploit,publicApplicationExploit,initialAccess)","LEAF",1
+28,33,-1
+27,28,-1
+26,27,-1
+34,"pathExists(web2_docker,'/home/jobs/shell',write,root)","LEAF",1
+26,34,-1
+35,"ttpExists(web2_docker,suid_path_helper,local,pathHijack,privilegeEscalation)","LEAF",1
+26,35,-1
+25,26,-1
+22,25,-1
+21,22,-1
+19,21,-1
+6,19,-1
+5,6,-1
+36,"hasAccount(pc1,domain_administrator,lab_domain_credential,system)","LEAF",1
+5,36,-1
+37,"networkServiceInfo(pc1,lsass,local,none,system)","LEAF",1
+5,37,-1
+38,"ttpExists(pc1,lsass,local,domainCredentialDumping,credentialAccess)","LEAF",1
+5,38,-1
+4,5,-1
+2,4,-1
+39,"hacl(pc1,dc,tcp,445)","LEAF",1
+2,39,-1
+40,"networkServiceInfo(dc,scm,tcp,445,system)","LEAF",1
+2,40,-1
+41,"ttpExists(dc,scm,remoteClient,remoteDisableDefenses,defenseEvasion)","LEAF",1
+2,41,-1
+2,6,-1
+42,"isFirewall(dc,enabled)","LEAF",1
+2,42,-1
+1,2,-1
+43,"execCode(dc,system)","OR",0
+44,"RULE 32 (Remote Services - Windows Credential Remote Execution - T1021)","AND",0
+44,3,-1
+44,4,-1
+44,1,-1
+44,6,-1
+44,39,-1
+45,"networkServiceInfo(dc,smb,tcp,445,system)","LEAF",1
+44,45,-1
+46,"ttpExists(dc,smb,remoteClient,windowsCredentialRemoteExecution,lateralMovement)","LEAF",1
+44,46,-1
+43,44,-1
+47,"execCode(pc2,system)","OR",0
+48,"RULE 30 (Remote Services - Windows Credential Remote Execution - T1021)","AND",0
+49,"hasAccount(pc2,domain_administrator,lab_domain_credential,system)","LEAF",1
+48,49,-1
+48,4,-1
+50,"isFirewall(pc2,disabled)","LEAF",1
+48,50,-1
+48,6,-1
+51,"hacl(pc1,pc2,tcp,445)","LEAF",1
+48,51,-1
+52,"networkServiceInfo(pc2,smb,tcp,445,system)","LEAF",1
+48,52,-1
+53,"ttpExists(pc2,smb,remoteClient,windowsCredentialRemoteExecution,lateralMovement)","LEAF",1
+48,53,-1
+47,48,-1

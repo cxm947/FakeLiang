@@ -1,2 +1,0 @@
-version: 1
-template: Choose a step from the inventory and propose execute or observe, or stop. Return exactly decision, board_id, node_id, phase, candidate_id, reason. Use decision choose or stop and the current board_id. For stop, node_id, phase and candidate_id must be null. For choose, phase must be execute or observe. Use a known concrete binding id, or null for candidate_id; ambiguous bindings will be refused. Give a non-empty reason. Graph declarations and model claims are not observed truth. Unknown premises may need observation. Stopping does not establish the goal.

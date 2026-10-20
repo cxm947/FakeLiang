@@ -1,5 +1,0 @@
-This turn is a correction turn. The previous conclusion was refused because a quotation did not come
-from the call it named. Answer with {"kind":"finish", ...} only: the corrected claim, verdict and citations.
-No target call is available this turn. Local evidence reads remain available for either saved stream.
-Quote only text the listed calls really printed. If nothing supports the claim, report uncertain
-or unsatisfied with citations: []; an honest empty evidence list is not a quotation error.

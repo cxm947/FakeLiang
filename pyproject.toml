@@ -1,43 +1,55 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "attack-graph-validation-agent"
-version = "1.0.0"
-description = "Attack-graph validation agent: MulVAL graph projection, skill registry/selector, execution runtime, multi-agent loop, and the Hongri7 lab harness"
+name = "agv-v2"
+version = "0.1.0"
+description = "节点编排与验证"
 requires-python = ">=3.10"
 dependencies = [
-    "jsonschema>=4.18,<5",
-    "PyYAML==6.0.3",
-    "Jinja2==3.1.6",
-    "langchain-core==1.6.9",
-    "langgraph==1.2.14",
-    "langgraph-checkpoint-sqlite==3.1.1",
-    "pymetasploit3==1.0.6",
+    "PyYAML>=6.0,<7",
+    "Jinja2>=3.1,<4",
+    "networkx>=3.4,<4",
+    "pydantic>=2.10,<3",
+    "langgraph>=1.0,<2",
+    "langchain-core>=1.0,<2",
+    "langchain-openai>=1.0,<2",
+    "langchain-deepseek>=1,<2",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.30,<1",
+    "langgraph-checkpoint-postgres>=3,<4",
+    "langgraph-checkpoint-sqlite>=3,<4",
+    "psycopg[binary,pool]>=3.2,<4",
+    "filelock>=3,<4",
+    "rank-bm25>=0.2.2,<0.3",
+    "mcp>=1.26,<2",
+    "httpx>=0.27,<1",
+    "jsonschema>=4.23,<5",
+    "anyio>=4,<5",
+    "pymetasploit3>=1.0.6,<1.1",
 ]
 
-[project.optional-dependencies]
-native = ["langchain-openai==1.7.0", "openai==3.16.2"]
-test = ["jsonschema>=4.18,<5", "pypdf>=4,<7", "PyMuPDF>=1.24,<2", "pytest>=8,<9", "msgpack==1.1.0"]
-lab = ["paramiko==3.5.1"]
-rpc = ["msgpack==1.1.0", "pymetasploit3==1.0.6"]
-
-[project.scripts]
-agv-project = "graph.cli:main"
-agv-visualize = "graph.visualize:main"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["agents*", "graph*", "orchestration*", "skills*", "runtime*"]
-
-[tool.setuptools.package-data]
-"agents.prompting" = ["*.json"]
-"agents._model" = ["templates/*.txt", "templates/*.yaml"]
-"agents.planner" = ["templates/*.txt", "templates/*.yaml"]
-"agents.executor" = ["templates/*.txt", "templates/*.yaml"]
-"agents.verifier" = ["templates/*.txt", "templates/*.yaml"]
-"skills" = ["templates/*.txt", "templates/*.yaml"]
+[dependency-groups]
+dev = ["pytest>=8,<10", "pytest-socket>=0.7,<1"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "--disable-socket"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src.orchestration*", "src.agents*", "src.graph*", "src.session*"]
+exclude = ["*.__pycache__*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"src.agents.planner" = ["prompts/*.yaml"]
+"src.agents.pre_verifier" = ["prompts/*.yaml"]
+"src.agents.executor" = ["prompts/*.yaml"]
+"src.agents.post_verifier" = ["prompts/*.yaml"]
+"src.agents._model" = ["README.md"]

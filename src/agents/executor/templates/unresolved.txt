@@ -1,3 +1,0 @@
-A call's outcome is still unknown. Do not dispatch another action or retry it.
-Abandon only records local stop-waiting; it does not cancel the remote operation or settle its outcome.
-Finish with uncertain or unsatisfied and describe what remains unconfirmed. Pending calls stay recorded.

@@ -1,2 +1,0 @@
-
-Return one JSON object with exactly the contract's fields.

@@ -1,1 +1,1 @@
-"""Orchestration layer: one step, one walk, no session bookkeeping."""
+"""节点编排与终态验证。"""

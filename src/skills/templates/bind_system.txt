@@ -1,1 +1,0 @@
-Choose one supplied highest-score card_id using the reasons and context. Return exactly card_id and a non-empty reason. Never edit a card.
